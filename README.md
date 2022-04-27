@@ -1,6 +1,6 @@
 # Progetto S.O. (AA 2021-22) - System calls
 
-Enrico bonoldi (VR456133) - Andrea Pinton ()
+Enrico bonoldi (VR456133) - Andrea Pinton (VR457648)
 
 ## Codebase
 
