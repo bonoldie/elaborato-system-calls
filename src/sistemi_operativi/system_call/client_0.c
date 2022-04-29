@@ -10,11 +10,10 @@
 #include <errno.h>
 #include <string.h>
 
-#include "defines.h"
 #include "err_exit.h"
 
-void startComunication();
-void endComunication();
+//void startComunication();
+//void endComunication();
 
 void sigHandler(int sig){
   if(sig == SIGINT) { 
@@ -22,7 +21,7 @@ void sigHandler(int sig){
     
   } else if (sig == SIGUSR1) {
     printf("<client> received SIGUSR1. Client ends\n");
-    if (kill(getppid(), SIGTERM) == -1){
+    if (kill(getpid(), SIGKILL) == -1){
       ErrExit("kill failed");
     }
   }
@@ -45,7 +44,7 @@ int main(int argc, char * argv[]) {
       ErrExit("change signal handler failed");
   }
   
-
+while(1);
   // elenco dei file (find??)
   
   return 0;

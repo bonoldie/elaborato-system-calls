@@ -7,8 +7,7 @@
 #include <stdio.h>
 #include <errno.h>
 
-void ErrExit(const char *msg)
-{
+void ErrExit(const char *msg){
     perror(msg);
     exit(1);
 }
