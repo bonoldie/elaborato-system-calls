@@ -1,0 +1,8 @@
+{
+    "makefile.extensionOutputFolder": "./.vscode",
+    "files.associations": {
+        "defines.h": "c",
+        "err_exit.h": "c",
+        "stdlib.h": "c"
+    }
+}
