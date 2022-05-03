@@ -36,6 +36,8 @@ char CWDARG[250];
 char *filePaths[MAX_FILES];
 int filePathsCounter;
 
+char *messages[4];
+
 void sigHandler(int sig)
 {
 
@@ -90,6 +92,13 @@ void startComunication()
     welcomeMessage();
 
     filePathsCounter = loadFilePaths(".", filePaths);
+
+    buildMessages(filePaths[0], messages);
+
+    // printf("%s\n",messages[0]);
+    // printf("%s\n",messages[1]);
+    // printf("%s\n",messages[2]);
+    // printf("%s\n",messages[3]);
 }
 
 void endComunication()

@@ -16,6 +16,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 
 #include <dirent.h>
 
@@ -72,7 +73,7 @@ int loadFilePaths(char *currdir, char **paths)
         else if ((fileStat.st_mode & S_IFMT) == S_IFREG)
         {
             // Match the file requirements
-            if (strstr(dentry->d_name, "sendme_") == dentry->d_name && fileStat.st_size < 4000)
+            if (strstr(dentry->d_name, "sendme_") == dentry->d_name && fileStat.st_size < MAX_FILE_SIZE)
             {
                 char fullFilePath[2000] = "";
 
@@ -90,4 +91,40 @@ int loadFilePaths(char *currdir, char **paths)
     }
 
     return pathsCounter;
+}
+
+int buildMessages(char *filePath, char **buff)
+{
+    int fd = open(filePath, O_RDONLY);
+    char content[MAX_FILE_SIZE] = "";
+    
+    char metadata[MAX_FILE_SIZE] = "";
+    sprintf(metadata,", %i, %s]", getpid(), filePath);
+
+    int lenght = 0;
+
+    if (fd < 0)
+    {
+        return -1;
+    }
+
+    while (read(fd, &(content[lenght]), 1) > 0)
+        lenght++;
+
+
+    for (int i = 0; i < 4; i++)
+    {
+        buff[i] = malloc(sizeof(char) * (MAX_FILE_SIZE / 4));
+        strcat(buff[i], "[");
+        strncat(buff[i], &(content[(lenght / 4) * i]), (lenght / 4));
+
+        if(i == 3){
+            strncat(buff[i], &(content[(lenght / 4) * i+1]), (lenght % 4));
+        }
+        strcat(buff[i],metadata);
+    }
+
+    close(fd);
+
+    return lenght;
 }

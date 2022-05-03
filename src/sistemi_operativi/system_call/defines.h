@@ -5,5 +5,6 @@
 #define _DEFINES_HH
 
 #define MAX_FILES 100
+#define MAX_FILE_SIZE 4000
 
 #endif
