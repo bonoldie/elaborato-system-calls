@@ -31,6 +31,9 @@ int loadFilePaths(char *currdir, char **paths)
 
     // Current directory valid files counter
     int pathsCounter = 0;
+    char CWD[2000] = "";
+
+    getcwd(CWD,sizeof(CWD)); 
 
     if (dirp == NULL)
         return;
@@ -69,11 +72,16 @@ int loadFilePaths(char *currdir, char **paths)
             // Match the file requirements
             if (strstr(dentry->d_name, "sendme_") == dentry->d_name && fileStat.st_size < 4000)
             {
-            
-                printf("<loadFilePaths> Found: %s (full path: %s)\n", dentry->d_name, currFilePath);
+                char fullFilePath[2000] = ""; 
+                
+                strcat(fullFilePath,CWD);
+                strcat(fullFilePath,"/");
+                strcat(fullFilePath,currFilePath);
 
-                paths[pathsCounter] = malloc(sizeof(char) * 2000);
-                strcpy(paths[pathsCounter], currFilePath);
+                printf("<loadFilePaths> Found: %s (full path: %s)\n", dentry->d_name, fullFilePath);
+
+                paths[pathsCounter] = malloc(sizeof(char) * (sizeof(fullFilePath) + 1));
+                strcpy(paths[pathsCounter], fullFilePath);
                 ++pathsCounter;
             }
         }
