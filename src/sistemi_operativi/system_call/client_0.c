@@ -26,7 +26,12 @@
 void startComunication();
 void endComunication();
 
-char CWD[250];
+void welcomeMessage();
+
+void blockAllSignals();
+void blockSomeSignals();
+
+char CWDARG[250];
 
 char *filePaths[MAX_FILES];
 int filePathsCounter;
@@ -48,16 +53,7 @@ void sigHandler(int sig)
 
 int main(int argc, char *argv[])
 {
-    // set of signals
-    sigset_t mySet;
-    // initialize mySet to contain all signal
-    sigfillset(&mySet);
-    // remove SIGINT & SIGUSR1
-    sigdelset(&mySet, SIGUSR1);
-    sigdelset(&mySet, SIGINT);
-    // sigdelset(&mySet, SIGTERM);
-    //  blocking all signals but SIGINT & SIgUSR1
-    sigprocmask(SIG_SETMASK, &mySet, NULL);
+    blockSomeSignals();
 
     // imposto directory corrente
     if (argc != 2)
@@ -67,7 +63,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    strcat(CWD, argv[1]);
+    strcat(CWDARG, argv[1]);
 
     // set the function sigHandler for signals
     if (signal(SIGINT, sigHandler) == SIG_ERR ||
@@ -86,25 +82,52 @@ int main(int argc, char *argv[])
 
 void startComunication()
 {
-    // blocco tutti i segnali
-    sigset_t mySet;
-    sigfillset(&mySet);
-    sigprocmask(SIG_SETMASK, &mySet, NULL);
+    blockAllSignals();
 
-    // imposto directory corrente
-    //  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //  chdir(CWD);
-    //  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // imposto CWD
+    chdir(CWDARG);
 
-    // https://pubs.opengroup.org/onlinepubs/007904975/basedefs/pwd.h.html
-    struct passwd *p = getpwuid(getuid());
-    printf("Ciao %s, ora inizio l’invio dei file contenuti in %s\n", p->pw_name, CWD);
+    welcomeMessage();
 
-    filePathsCounter = loadFilePaths(CWD, filePaths);
+    filePathsCounter = loadFilePaths(".", filePaths);
 }
 
 void endComunication()
 {
+}
+
+void welcomeMessage()
+{
+    // Load the CWD
+    char CWD[2000] = "";
+    struct passwd *p = getpwuid(getuid());
+
+    getcwd(CWD, sizeof(CWD));
+
+    // https://pubs.opengroup.org/onlinepubs/007904975/basedefs/pwd.h.html
+    printf("Ciao %s, ora inizio l’invio dei file contenuti in %s\n", p->pw_name, CWD);
+}
+
+void blockSomeSignals()
+{
+    // set of signals
+    sigset_t mySet;
+
+    // initialize mySet to contain all signal
+    sigfillset(&mySet);
+
+    // remove SIGINT & SIGUSR1
+    sigdelset(&mySet, SIGUSR1);
+    sigdelset(&mySet, SIGINT);
+
+    //  blocking all signals but SIGINT & SIgUSR1
+    sigprocmask(SIG_SETMASK, &mySet, NULL);
+}
+
+void blockAllSignals()
+{
+    // Block all signals
+    sigset_t mySet;
+    sigfillset(&mySet);
+    sigprocmask(SIG_SETMASK, &mySet, NULL);
 }
