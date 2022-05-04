@@ -7,4 +7,7 @@
 #define MAX_FILES 100
 #define MAX_FILE_SIZE 4000
 
+#define SHM_KEY 123456789
+#define MSG_KEY 987654321
+
 #endif

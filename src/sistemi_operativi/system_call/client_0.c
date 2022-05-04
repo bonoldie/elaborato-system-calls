@@ -13,6 +13,7 @@
 #include <errno.h>
 
 #include <pwd.h>
+#include <fcntl.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -22,6 +23,9 @@
 #include "err_exit.h"
 #include "fs.h"
 #include "defines.h"
+#include "shared_memory.h"
+
+struct MemoryDisposition *shmDisposition;
 
 void startComunication();
 void endComunication();
@@ -74,8 +78,11 @@ int main(int argc, char *argv[])
         ErrExit("change signal handler failed");
     }
 
+    shmDisposition = init_shared_memory();
+    
     while (1)
     {
+     
         sleep(10);
     }
 
@@ -99,6 +106,36 @@ void startComunication()
     // printf("%s\n",messages[1]);
     // printf("%s\n",messages[2]);
     // printf("%s\n",messages[3]);
+
+    //FIFO 1 CLIENT
+   char *fpath = "/tmp/FIFO1";
+  
+   printf("<Client> opening FIFO %s...\n", fpath);
+    // Open the FIFO in write-only mode
+    int FIFO1 = open(fpath, O_WRONLY);
+    if (FIFO1 == -1)
+        ErrExit("open failed");
+  
+    printf("<Client> sending %i\n", filePathsCounter);
+    // Wrinte  two integers to the opened FIFO
+    if (write(FIFO1, &filePathsCounter, sizeof(int)) <= 0)
+        ErrExit("write failed");
+
+  while(shmDisposition->serverOk == 0){
+    printf("serverOk: %i\n",shmDisposition->serverOk);
+    printf("<Client> Waiting for serverOk");
+    sleep(1);
+  }
+
+  shmDisposition->serverOk = 0;
+  
+  printf("<Client> Received serverOk");
+
+  fflush(stdout);
+  
+    // Close the FIFO
+    if (close(FIFO1) != 0)
+        ErrExit("close failed");
 }
 
 void endComunication()
