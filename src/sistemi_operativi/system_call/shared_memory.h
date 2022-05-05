@@ -11,7 +11,7 @@
 // the Request structure defines a request sent by a client
 struct MemoryDisposition {
     int serverOk;
-    char messages[MAX_FILE_SIZE/4][50];
+    char messages[MESSAGE_SIZE][50];
 };
 
 // The alloc_shared_memory method creates, if it does not exist, a shared
