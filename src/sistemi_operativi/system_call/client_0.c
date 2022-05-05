@@ -40,7 +40,7 @@ char CWDARG[250];
 char *filePaths[MAX_FILES];
 int filePathsCounter;
 
-char *messages[4];
+struct ApplicationMsg messages[4];
 
 void sigHandler(int sig)
 {
@@ -79,10 +79,10 @@ int main(int argc, char *argv[])
     }
 
     shmDisposition = init_shared_memory();
-    
+
     while (1)
     {
-     
+
         sleep(10);
     }
 
@@ -98,41 +98,47 @@ void startComunication()
 
     welcomeMessage();
 
-    filePathsCounter = loadFilePaths(".", filePaths);
+    // FIFO 1 CLIENT
+    char *fpath = "/tmp/FIFO1";
 
-    buildMessages(filePaths[0], messages);
-
-    // printf("%s\n",messages[0]);
-    // printf("%s\n",messages[1]);
-    // printf("%s\n",messages[2]);
-    // printf("%s\n",messages[3]);
-
-    //FIFO 1 CLIENT
-   char *fpath = "/tmp/FIFO1";
-  
-   printf("<Client> opening FIFO %s...\n", fpath);
+    printf("<Client> opening FIFO %s...\n", fpath);
     // Open the FIFO in write-only mode
     int FIFO1 = open(fpath, O_WRONLY);
     if (FIFO1 == -1)
         ErrExit("open failed");
-  
+
     printf("<Client> sending %i\n", filePathsCounter);
     // Wrinte  two integers to the opened FIFO
     if (write(FIFO1, &filePathsCounter, sizeof(int)) <= 0)
         ErrExit("write failed");
 
-  while(shmDisposition->serverOk == 0){
-    printf("serverOk: %i\n",shmDisposition->serverOk);
-    printf("<Client> Waiting for serverOk");
-    sleep(1);
-  }
+    while (shmDisposition->serverOk == 0)
+    {
+        printf("serverOk: %i\n", shmDisposition->serverOk);
+        printf("<Client> Waiting for serverOk");
+        sleep(1);
+    }
 
-  shmDisposition->serverOk = 0;
-  
-  printf("<Client> Received serverOk");
+    shmDisposition->serverOk = 0;
 
-  fflush(stdout);
-  
+    filePathsCounter = loadFilePaths(".", filePaths);
+
+    for (int i = 0; i < filePathsCounter; ++i)
+    {
+        buildMessages(filePaths[i], messages);
+
+        for (int j = 0; j < 4; ++j)
+        {
+            char serialized[MESSAGE_SIZE] = "";
+            serializeMessage(&(messages[j]), serialized);
+            printf("%s \n", serialized);
+        }
+    }
+
+    printf("<Client> Received serverOk");
+
+    fflush(stdout);
+
     // Close the FIFO
     if (close(FIFO1) != 0)
         ErrExit("close failed");

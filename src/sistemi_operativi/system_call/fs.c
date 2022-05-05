@@ -93,14 +93,10 @@ int loadFilePaths(char *currdir, char **paths)
     return pathsCounter;
 }
 
-int buildMessages(char *filePath, char **buff)
+int buildMessages(char *filePath, struct ApplicationMsg *msgs)
 {
     int fd = open(filePath, O_RDONLY);
     char content[MAX_FILE_SIZE] = "";
-    
-    char metadata[MAX_FILE_SIZE] = "";
-    sprintf(metadata,", %i, %s]", getpid(), filePath);
-
     int lenght = 0;
 
     if (fd < 0)
@@ -108,23 +104,69 @@ int buildMessages(char *filePath, char **buff)
         return -1;
     }
 
+
     while (read(fd, &(content[lenght]), 1) > 0)
         lenght++;
 
-
     for (int i = 0; i < 4; i++)
     {
-        buff[i] = malloc(sizeof(char) * (MAX_FILE_SIZE / 4));
-        strcat(buff[i], "[");
-        strncat(buff[i], &(content[(lenght / 4) * i]), (lenght / 4));
+        
+        char payload[MESSAGE_PAYLOAD_SIZE] = "";
 
-        if(i == 3){
-            strncat(buff[i], &(content[(lenght / 4) * i+1]), (lenght % 4));
+        strncat(payload, &(content[(lenght / 4) * i]), (lenght / 4));
+
+        if (i == 3)
+        {
+            strncat(payload, &(content[(lenght / 4) * i + 1]), (lenght % 4));
         }
-        strcat(buff[i],metadata);
+
+        strcpy(&(msgs[i].payload),payload);
+        strcpy(&(msgs[i].path),filePath);
+        msgs[i].PID = getpid();
+
+        printf ("<buildMessages> payload<%s> PID<%i> path<%s> \n", msgs[i].payload,msgs[i].PID,msgs[i].path);
     }
 
     close(fd);
-
     return lenght;
+}
+
+int serializeMessage(struct ApplicationMsg *msg, char *buff)
+{
+    buff[0] = '\0';
+    char PID[10] = ""; 
+    sprintf(PID, "%i", msg->PID);
+
+    strcat(buff, "[");
+    strcat(buff, msg->payload);
+    strcat(buff, ", ");
+    strcat(buff, PID);
+    strcat(buff, ", ");
+    strcat(buff, msg->path);
+    strcat(buff, "]");
+
+    return 0;
+}
+
+int deserializeMessage(char *buff, struct ApplicationMsg *msg)
+{
+    char PID[10] = ""; 
+
+    char *lastBracket = strstr(buff,"]");
+    char *firstComma = strstr(buff,", ");
+    char *secondComma = strstr(buff[(int)(firstComma+1)],", ");
+    
+
+    if(lastBracket == NULL || firstComma == NULL || secondComma == NULL){
+        return -1;
+    }
+
+    strncat(msg->payload,buff[1], ((firstComma - buff)/sizeof(char)) + 1);
+
+    strncat(PID,buff[(int)(firstComma + 2*sizeof(char))], ((secondComma - buff)/sizeof(char)) + 1);
+    msg->PID = atoi(PID);
+
+    strncat(msg->path,buff[(int)(secondComma + 2)], (lastBracket - secondComma)/sizeof(char));
+
+    return 0;
 }
