@@ -24,4 +24,8 @@ struct ApplicationMsg
 #define SHM_KEY 123456789
 #define MSG_KEY 987654321
 
+// FIFOs
+#define FIFO1PATH "/tmp/FIFO1"
+#define FIFO2PATH "/tmp/FIFO2"
+
 #endif

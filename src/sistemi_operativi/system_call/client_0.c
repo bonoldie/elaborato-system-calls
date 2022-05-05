@@ -24,6 +24,7 @@
 #include "fs.h"
 #include "defines.h"
 #include "shared_memory.h"
+#include "fifo.h"
 
 struct MemoryDisposition *shmDisposition;
 
@@ -98,12 +99,13 @@ void startComunication()
 
     welcomeMessage();
 
-    // FIFO 1 CLIENT
-    char *fpath = "/tmp/FIFO1";
+    filePathsCounter = loadFilePaths(".", filePaths);
 
-    printf("<Client> opening FIFO %s...\n", fpath);
+    // FIFO 1 CLIENT
+    printf("<Client> Opening FIFO1 ...\n");
     // Open the FIFO in write-only mode
-    int FIFO1 = open(fpath, O_WRONLY);
+    int FIFO1 = getFIFO1(O_WRONLY);
+
     if (FIFO1 == -1)
         ErrExit("open failed");
 
@@ -114,14 +116,11 @@ void startComunication()
 
     while (shmDisposition->serverOk == 0)
     {
-        printf("serverOk: %i\n", shmDisposition->serverOk);
         printf("<Client> Waiting for serverOk");
         sleep(1);
     }
 
     shmDisposition->serverOk = 0;
-
-    filePathsCounter = loadFilePaths(".", filePaths);
 
     for (int i = 0; i < filePathsCounter; ++i)
     {

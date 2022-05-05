@@ -12,8 +12,6 @@
 #include <pwd.h>
 #include <fcntl.h>
 
-
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
@@ -32,17 +30,14 @@ int main(int argc, char * argv[]) {
   
   char *fpath = "/tmp/FIFO1";
   
-  if(mkfifo(fpath, S_IRUSR|S_IWUSR) == -1)
-      ErrExit("non sono riuscito a creare la fifo1");
-
-  printf("<Server> FIFO %s created!\n", fpath);
-
   printf("<Server> waiting for a client...\n");
-  int FIFO1 = open(fpath, O_RDONLY);
+  
+  int FIFO1 = getFIFO1(O_RDONLY);
     if(FIFO1 == -1)
       ErrExit("fifo failed");
  
   int v;
+
   //reading bytes from fifo
   int bR = read(FIFO1, &v, sizeof(int));
   if (bR == -1)
