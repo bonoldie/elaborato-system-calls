@@ -17,13 +17,24 @@
 #include <dirent.h>
 
 #include "err_exit.h"
+#include "semaphore.h"
 #include "fifo.h"
 #include "shared_memory.h"
-#include "semaphore.h"
+
+short FIFO1SemVelue[1];
+short FIFO2SemValue[1];
+short ShmSemValues[50];
 
 struct MemoryDisposition *shmDisposition;
 
 int main(int argc, char * argv[]) {
+
+  setupSemaphores();
+  initSemaphores();
+
+  printSemValues(ShmSemId);
+  printSemValues(FIFO1SemId);
+  printSemValues(FIFO2SemId);
 
   shmDisposition = init_shared_memory();
   shmDisposition->serverOk = 0;

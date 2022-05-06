@@ -15,7 +15,7 @@
 
 struct ApplicationMsg
 {
-    pid_t PID;
+    int PID;
     char payload[MESSAGE_PAYLOAD_SIZE];
     char path[MESSAGE_META_SIZE];
 };
@@ -27,5 +27,10 @@ struct ApplicationMsg
 // FIFOs
 #define FIFO1PATH "/tmp/FIFO1"
 #define FIFO2PATH "/tmp/FIFO2"
+
+// Semaphores
+#define FIFO1_PRIVATE (key_t)111111
+#define FIFO2_PRIVATE (key_t)222222
+#define SHM_PRIVATE (key_t)333333
 
 #endif

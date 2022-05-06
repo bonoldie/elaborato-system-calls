@@ -17,6 +17,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/sem.h>
 
 #include <dirent.h>
 
@@ -24,6 +25,7 @@
 #include "fs.h"
 #include "defines.h"
 #include "shared_memory.h"
+#include "semaphore.h"
 #include "fifo.h"
 
 struct MemoryDisposition *shmDisposition;
@@ -35,6 +37,10 @@ void welcomeMessage();
 
 void blockAllSignals();
 void blockSomeSignals();
+
+short FIFO1SemVelue[1];
+short FIFO2SemValue[1];
+short ShmSemValues[50];
 
 char CWDARG[250];
 
@@ -81,6 +87,8 @@ int main(int argc, char *argv[])
 
     shmDisposition = init_shared_memory();
 
+    setupSemaphores();
+
     while (1)
     {
 
@@ -93,6 +101,7 @@ int main(int argc, char *argv[])
 void startComunication()
 {
     blockAllSignals();
+    initSemaphores();
 
     // imposto CWD
     chdir(CWDARG);
@@ -134,6 +143,7 @@ void startComunication()
         }
     }
 
+    
     printf("<Client> Received serverOk");
 
     fflush(stdout);
@@ -182,3 +192,4 @@ void blockAllSignals()
     sigfillset(&mySet);
     sigprocmask(SIG_SETMASK, &mySet, NULL);
 }
+
