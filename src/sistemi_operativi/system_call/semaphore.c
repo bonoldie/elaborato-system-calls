@@ -6,6 +6,7 @@
 #include <sys/sem.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <string.h>
 
 #include "err_exit.h"
 #include "defines.h"
@@ -14,6 +15,7 @@
 int FIFO1SemId = -1;
 int FIFO2SemId = -1;
 int ShmSemId = -1;
+int MsgQueueSemId = -1;
 
 void semOp(int semid, unsigned short sem_num, short sem_op)
 {
@@ -44,6 +46,7 @@ void setupSemaphores()
     FIFO1SemId = semget(FIFO1_PRIVATE, 1, IPC_CREAT | S_IRUSR | S_IWUSR);
     FIFO2SemId = semget(FIFO2_PRIVATE, 1, IPC_CREAT | S_IRUSR | S_IWUSR);
     ShmSemId = semget(SHM_PRIVATE, 50, IPC_CREAT | S_IRUSR | S_IWUSR);
+    MsgQueueSemId = semget(MSGQUEUE_PRIVATE, 1, IPC_CREAT | S_IRUSR | S_IWUSR);
 
     if (ShmSemId == -1 || FIFO1SemId == -1 || FIFO2SemId == -1)
     {
@@ -54,9 +57,11 @@ void setupSemaphores()
 void initSemaphores()
 {
     short _[1] = {1};
-    short __[50] = {1};
+    short __[50] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,};
+    short ___[1] = {50};
 
-    if (setSemValues(FIFO1SemId, &_) == -1 || setSemValues(FIFO2SemId, &_) == -1 || setSemValues(ShmSemId, &__) == -1)
+
+    if (setSemValues(FIFO1SemId, &_) == -1 || setSemValues(FIFO2SemId, &_) == -1 || setSemValues(ShmSemId, &__) == -1 || setSemValues(MsgQueueSemId, &___) == -1)
     {
         ErrExit("<initSemaphores> semctl failed");
     }
@@ -66,9 +71,9 @@ void printSemValues(int semid)
 {
     int semLength = 0;
 
-    if (semid == FIFO1SemId || semid == FIFO2SemId)
+    if (semid == FIFO1SemId || semid == FIFO2SemId ||  semid == MsgQueueSemId)
     {
-        semLength = 4;
+        semLength = 1;
     }
     else
     {
@@ -79,7 +84,7 @@ void printSemValues(int semid)
     union semun arg;
     arg.array = semVal;
 
-    printf("%i \n", semid);
+    printf("%hu \n", semid);
 
     // get the current state of the set
     if (semctl(semid, 0, GETALL, arg) == -1)

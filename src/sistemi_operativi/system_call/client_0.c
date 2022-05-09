@@ -115,8 +115,6 @@ void startComunication()
     // Open the FIFO in write-only mode
     int FIFO1 = getFIFO1(O_WRONLY);
 
-    if (FIFO1 == -1)
-        ErrExit("open failed");
 
     printf("<Client> sending %i\n", filePathsCounter);
     // Wrinte  two integers to the opened FIFO

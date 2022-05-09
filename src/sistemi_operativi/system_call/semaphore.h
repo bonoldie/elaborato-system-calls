@@ -26,6 +26,7 @@ int setSemValues(int semid, short * initValues);
 extern int FIFO1SemId;
 extern int FIFO2SemId;
 extern int ShmSemId;
+extern int MsgQueueSemId;
 
 void initSemaphores();
 void setupSemaphores();

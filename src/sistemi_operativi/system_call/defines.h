@@ -22,7 +22,7 @@ struct ApplicationMsg
 
 // Shared memory
 #define SHM_KEY 123456789
-#define MSG_KEY 987654321
+#define MSGQUEUE_KEY 987654321
 
 // FIFOs
 #define FIFO1PATH "/tmp/FIFO1"
@@ -32,5 +32,14 @@ struct ApplicationMsg
 #define FIFO1_PRIVATE (key_t)111111
 #define FIFO2_PRIVATE (key_t)222222
 #define SHM_PRIVATE (key_t)333333
+#define MSGQUEUE_PRIVATE (key_t)444444
+
+// MsgQueue
+struct SerializedMessage {
+  long mtype;
+  char mtext[MESSAGE_SIZE];
+};
+
+int getMsgQueue(mode_t mode);
 
 #endif
