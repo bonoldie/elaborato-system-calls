@@ -110,6 +110,7 @@ void startComunication()
 
     filePathsCounter = loadFilePaths(".", filePaths);
 
+  
     // FIFO 1 CLIENT
     printf("<Client> Opening FIFO1 ...\n");
     // Open the FIFO in write-only mode
@@ -129,22 +130,39 @@ void startComunication()
 
     shmDisposition->serverOk = 0;
 
-    for (int i = 0; i < filePathsCounter; ++i)
-    {
-        buildMessages(filePaths[i], messages);
-
-        for (int j = 0; j < 4; ++j)
-        {
-            char serialized[MESSAGE_SIZE] = "";
-            serializeMessage(&(messages[j]), serialized);
-            printf("%s \n", serialized);
-        }
-    }
-
-    
-    printf("<Client> Received serverOk");
+  printf("<Client> Received serverOk");
 
     fflush(stdout);
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    pid_t pid;
+   
+      for (int i = 0; i < filePathsCounter; ++i){
+            pid = fork();
+              if (pid == -1)
+                printf("child %d not created!", i);
+              else if (pid == 0) {
+                printf("PID: %d , PPID: %d.",getpid(), getppid());
+                }
+        
+                buildMessages(filePaths[i], messages);
+        
+                for (int j = 0; j < 4; ++j){
+                  char serialized[MESSAGE_SIZE] = "";
+                  serializeMessage(&(messages[j]), serialized);
+                  printf("%s \n", serialized);
+                 }
+       }
+
+  int res;
+  do {
+        res = waitpid(pid, NULL, 0); 
+        printf("returned child %d", getpid);
+        if (res == -1)
+            ErrExit("waitpid failed");
+    } while (res == 0);
+ 
+  
 
     // Close the FIFO
     if (close(FIFO1) != 0)
@@ -190,4 +208,7 @@ void blockAllSignals()
     sigfillset(&mySet);
     sigprocmask(SIG_SETMASK, &mySet, NULL);
 }
+
+
+
 
