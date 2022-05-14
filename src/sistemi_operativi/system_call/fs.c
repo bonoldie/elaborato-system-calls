@@ -124,8 +124,11 @@ int buildMessages(char *filePath, struct ApplicationMsg *msgs)
         strcpy(&(msgs[i].path),filePath);
         msgs[i].PID = getpid();
 
+      
+
         printf ("<buildMessages> payload<%s> PID<%i> path<%s> \n", msgs[i].payload,msgs[i].PID,msgs[i].path);
     }
+  
 
     close(fd);
     return lenght;

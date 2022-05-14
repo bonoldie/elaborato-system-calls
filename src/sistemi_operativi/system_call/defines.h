@@ -33,6 +33,7 @@ struct ApplicationMsg
 #define FIFO2_PRIVATE (key_t)222222
 #define SHM_PRIVATE (key_t)333333
 #define MSGQUEUE_PRIVATE (key_t)444444
+#define CLIENT_PRIVATE (key_t)555555
 
 // MsgQueue
 struct SerializedMessage {

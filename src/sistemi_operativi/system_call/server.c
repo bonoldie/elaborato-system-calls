@@ -41,10 +41,12 @@ int main(int argc, char * argv[]) {
 
   setupSemaphores();
 
-  printSemValues(ShmSemId);
-  printSemValues(FIFO1SemId);
-  printSemValues(FIFO2SemId);
-  printSemValues(MsgQueueSemId);
+  printSemValues(ShmSemId,0);
+  printSemValues(FIFO1SemId,0);
+  printSemValues(FIFO2SemId,0);
+  printSemValues(MsgQueueSemId,0);
+  
+  
 
   shmDisposition = init_shared_memory();
   shmDisposition->serverOk = 0;

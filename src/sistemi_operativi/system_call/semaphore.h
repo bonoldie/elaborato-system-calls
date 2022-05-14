@@ -27,11 +27,12 @@ extern int FIFO1SemId;
 extern int FIFO2SemId;
 extern int ShmSemId;
 extern int MsgQueueSemId;
+extern int CLIENTSemId;
 
 void initSemaphores();
 void setupSemaphores();
 
 
-void printSemValues(int semid);
+void printSemValues(int semid, int filePathsCounter);
 
 #endif
