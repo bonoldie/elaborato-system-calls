@@ -42,4 +42,13 @@ int serializeMessage(struct ApplicationMsg *msg, char *buff);
  */
 int deserializeMessage(char *buff, struct ApplicationMsg *msg);
 
+
+/**
+ * @brief Write a message array to the related file
+ * 
+ * @param msgs messages to write
+ * @return the write status 
+ */
+int writeOutFile(struct ApplicationMsg *msgs);
+
 #endif

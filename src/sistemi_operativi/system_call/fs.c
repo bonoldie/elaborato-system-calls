@@ -104,13 +104,12 @@ int buildMessages(char *filePath, struct ApplicationMsg *msgs)
         return -1;
     }
 
-
     while (read(fd, &(content[lenght]), 1) > 0)
         lenght++;
 
     for (int i = 0; i < 4; i++)
     {
-        
+
         char payload[MESSAGE_PAYLOAD_SIZE] = "";
 
         strncat(payload, &(content[(lenght / 4) * i]), (lenght / 4));
@@ -120,15 +119,12 @@ int buildMessages(char *filePath, struct ApplicationMsg *msgs)
             strncat(payload, &(content[(lenght / 4) * i + 1]), (lenght % 4));
         }
 
-        strcpy(&(msgs[i].payload),payload);
-        strcpy(&(msgs[i].path),filePath);
+        strcpy(&(msgs[i].payload), payload);
+        strcpy(&(msgs[i].path), filePath);
         msgs[i].PID = getpid();
 
-      
-
-        printf ("<buildMessages> payload<%s> PID<%i> path<%s> \n", msgs[i].payload,msgs[i].PID,msgs[i].path);
+        printf("<buildMessages> payload<%s> PID<%i> path<%s> \n", msgs[i].payload, msgs[i].PID, msgs[i].path);
     }
-  
 
     close(fd);
     return lenght;
@@ -137,7 +133,7 @@ int buildMessages(char *filePath, struct ApplicationMsg *msgs)
 int serializeMessage(struct ApplicationMsg *msg, char *buff)
 {
     buff[0] = '\0';
-    char PID[10] = ""; 
+    char PID[10] = "";
     sprintf(PID, "%i", msg->PID);
 
     strcat(buff, "[");
@@ -153,23 +149,51 @@ int serializeMessage(struct ApplicationMsg *msg, char *buff)
 
 int deserializeMessage(char *buff, struct ApplicationMsg *msg)
 {
-    char PID[10] = ""; 
+    char PID[10] = "";
 
-    char *lastBracket = strstr(buff,"]");
-    char *firstComma = strstr(buff,", ");
-    char *secondComma = strstr(buff[(int)(firstComma+1)],", ");
-    
+    char *lastBracket = strstr(buff, "]");
+    char *firstComma = strstr(buff, ", ");
+    char *secondComma = strstr(buff[(int)(firstComma + 1)], ", ");
 
-    if(lastBracket == NULL || firstComma == NULL || secondComma == NULL){
+    if (lastBracket == NULL || firstComma == NULL || secondComma == NULL)
+    {
         return -1;
     }
 
-    strncat(msg->payload,buff[1], ((firstComma - buff)/sizeof(char)) + 1);
+    strncat(msg->payload, buff[1], ((firstComma - buff) / sizeof(char)) + 1);
 
-    strncat(PID,buff[(int)(firstComma + 2*sizeof(char))], ((secondComma - buff)/sizeof(char)) + 1);
+    strncat(PID, buff[(int)(firstComma + 2 * sizeof(char))], ((secondComma - buff) / sizeof(char)) + 1);
     msg->PID = atoi(PID);
 
-    strncat(msg->path,buff[(int)(secondComma + 2)], (lastBracket - secondComma)/sizeof(char));
+    strncat(msg->path, buff[(int)(secondComma + 2)], (lastBracket - secondComma) / sizeof(char));
+
+    return 0;
+}
+
+int writeOutFile(struct ApplicationMsg *msgs)
+{
+    int fd = open(msgs[0].path, O_CREAT | O_WRONLY);
+
+    if (fd < 0)
+    {
+        ErrExit("<writeMessage> Error while opening file ");
+    }
+
+    for (int i = 0; i < 4; ++i)
+    {
+        struct ApplicationMsg msg = msgs[i];
+        char buff[MESSAGE_SIZE] = "";
+
+        sprintf(buff, "[Parte %i, del file %s, spedita dal processo %i tramite %s]\n%s\n\n", i + 1, msg.path, msg.PID, msg.medium);
+
+        write(fd, buff, strlen(buff) * sizeof(char));
+
+    }
+
+    if (close(fd) < 0)
+    {
+        ErrExit("<writeMessage> Error while closing file ");
+    }
 
     return 0;
 }

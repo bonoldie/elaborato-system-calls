@@ -18,7 +18,10 @@ struct ApplicationMsg
     int PID;
     char payload[MESSAGE_PAYLOAD_SIZE];
     char path[MESSAGE_META_SIZE];
+    char medium[500];
 };
+
+int sortMessages(struct ApplicationMsg *msgs, int arrayLength);
 
 // Shared memory
 #define SHM_KEY 123456789
@@ -42,5 +45,11 @@ struct SerializedMessage {
 };
 
 int getMsgQueue(mode_t mode);
+
+// Media
+const char MEDIA_SHM []= "ShdMem"; 
+const char MEDIA_FIFO1 []= "FIFO1"; 
+const char MEDIA_FIFO2 []= "FIFO2"; 
+const char MEDIA_MSGQUEUE []= "MsgQueue";
 
 #endif

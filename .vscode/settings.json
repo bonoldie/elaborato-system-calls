@@ -1,0 +1,14 @@
+{
+    "makefile.extensionOutputFolder": "./.vscode",
+    "files.associations": {
+        "err_exit.h": "c",
+        "stat.h": "c",
+        "struct_timespec.h": "c",
+        "defines.h": "c",
+        "shared_memory.h": "c",
+        "semaphore.h": "c",
+        "errno.h": "c",
+        "errno-base.h": "c"
+    },
+    "C_Cpp.errorSquiggles": "Enabled"
+}

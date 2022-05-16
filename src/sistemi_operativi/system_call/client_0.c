@@ -100,7 +100,6 @@ void startComunication()
 {
     blockAllSignals();
     initSemaphores();
-   
 
     // imposto CWD
     chdir(CWDARG);
@@ -108,10 +107,9 @@ void startComunication()
     welcomeMessage();
 
     filePathsCounter = loadFilePaths(".", filePaths);
-      
+
     initClientSemaphore(filePathsCounter);
 
-  
     // FIFO 1 CLIENT
     printf("<Client> Opening FIFO1 ...\n");
     // Open the FIFO in write-only mode
@@ -124,8 +122,6 @@ void startComunication()
     if (write(FIFO1, &filePathsCounter, sizeof(int)) <= 0)
         ErrExit("write failed");
 
-   
-  
     while (shmDisposition->serverOk == 0)
     {
         sleep(1);
@@ -137,43 +133,46 @@ void startComunication()
 
     fflush(stdout);
 
-  //Valore sem client N dei path
-  printSemValues(CLIENTSemId, filePathsCounter);
-  
-//Creazione dei figli 
-    pid_t pid;
-    
-   
-      for (int i = 0; i < filePathsCounter; ++i){
-          
-           int code = (int)(((double)rand() / RAND_MAX) * 255);
-              pid = fork();
-                if (pid == -1)
-                  printf("child %d not created!", i);
-                else if (pid == 0) {
-                    //wait the i-th child
+    // Valore sem client N dei path
+    printSemValues(CLIENTSemId, filePathsCounter);
 
-                  //!!!!!!!!!
-                    buildMessages(filePaths[i], messages);
-                    
-                    for (int j = 0; j < 4; ++j){
-                      char serialized[MESSAGE_SIZE] = "";
-                      serializeMessage(&(messages[j]), serialized);
-                      printf("%s \n", serialized);
-                     }
-                      printf("PIDchild: %d, PIDparent: %d\n",getpid(), getppid());
-                      semOp(CLIENTSemId,i,-1);
-                      semOp(CLIENTSemId, (unsigned short) (i == 0)? filePathsCounter - 1: i - 1, 1);
-                     exit(code);
-              }
-       
-       }
-  
-     int status = 0;
+    // Creazione dei figli
+    pid_t pid;
+
+    for (int i = 0; i < filePathsCounter; ++i)
+    {
+
+        int code = (int)(((double)rand() / RAND_MAX) * 255);
+        pid = fork();
+        if (pid == -1)
+        {
+            printf("Child %d not created!", i);
+        }
+        else if (pid == 0)
+        {
+            // wait the i-th child
+
+            //!!!!!!!!!
+            buildMessages(filePaths[i], messages);
+
+            for (int j = 0; j < 4; ++j)
+            {
+                char serialized[MESSAGE_SIZE] = "";
+                serializeMessage(&(messages[j]), serialized);
+                printf("%s \n", serialized);
+            }
+            printf("PIDchild: %d, PIDparent: %d\n", getpid(), getppid());
+            semOp(CLIENTSemId, i, -1);
+            semOp(CLIENTSemId, (unsigned short)(i == 0) ? filePathsCounter - 1 : i - 1, 1);
+            exit(code);
+        }
+    }
+
+    int status = 0;
     // get termination status of each created subprocess.
-    while ( (pid = wait(&status)) != -1)
+    while ((pid = wait(&status)) != -1)
         printf("Child %d Finished\n", pid);
- 
+
     fflush(stdout);
 
     // Close the FIFO
@@ -181,9 +180,10 @@ void startComunication()
         ErrExit("close failed");
 }
 
-void endComunication(){
-  printf("<client> received SIGUSR1. Client ends\n");
-  exit(0);
+void endComunication()
+{
+    printf("<client> received SIGUSR1. Client ends\n");
+    exit(0);
 }
 
 void welcomeMessage()
@@ -221,7 +221,3 @@ void blockAllSignals()
     sigfillset(&mySet);
     sigprocmask(SIG_SETMASK, &mySet, NULL);
 }
-
-
-
-

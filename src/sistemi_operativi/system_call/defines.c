@@ -7,10 +7,25 @@
 #include "defines.h"
 #include "err_exit.h"
 
-int getMsgQueue(mode_t mode){
+int getMsgQueue(mode_t mode)
+{
   // get the message queue identifier
-    int msqid = msgget(MSGQUEUE_KEY, S_IRUSR | mode);
-    if (msqid == -1)
-        ErrExit("msgget failed");
-    return msqid;
+  int msqid = msgget(MSGQUEUE_KEY, S_IRUSR | mode);
+  if (msqid == -1)
+    ErrExit("msgget failed");
+  return msqid;
+}
+
+int sortMessages(struct ApplicationMsg *msgs, int arrayLength)
+{
+  for (int i = 0; i < arrayLength - 1; ++i)
+  {
+    for (int j = i; j < arrayLength - 1; ++j)
+    {
+      if (msgs[i].PID > msgs[j].PID)
+      {
+        msgs[i], msgs[j] = msgs[j], msgs[i];
+      }
+    }
+  }
 }

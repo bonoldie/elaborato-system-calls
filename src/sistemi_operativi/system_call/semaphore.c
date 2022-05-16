@@ -69,7 +69,7 @@ void initSemaphores()
 }
 
 void initClientSemaphore(int filePathsCounter){
-
+    
   CLIENTSemId = semget(CLIENT_PRIVATE, filePathsCounter, IPC_CREAT | S_IRUSR | S_IWUSR);
 
   if (CLIENTSemId == -1){
