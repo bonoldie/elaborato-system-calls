@@ -1,6 +1,6 @@
 /// @file client.c
 /// @brief Contiene l'implementazione del client.
-
+// kill -SIGKILL $(ps -aux | grep -m1 client_0 | cut -d' ' -f6) $(ps -aux | grep -m1 // client_0 | cut -d' ' -f7)
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -114,7 +114,7 @@ void startComunication()
     // FIFO 1 CLIENT
     printf("<Client> Opening FIFO1 ...\n");
     // Open the FIFO in write-only mode
-    int FIFO1 = getFIFO1(O_WRONLY);
+    int FIFO1 = getFIFO(FIFO1PATH,O_WRONLY);
 
     printf("<Client> Waiting for serverOk\n");
 

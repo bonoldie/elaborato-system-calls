@@ -12,8 +12,7 @@ char MEDIA_FIFO1 [] = "FIFO1";
 char MEDIA_FIFO2 [] = "FIFO2"; 
 char MEDIA_MSGQUEUE [] = "MsgQueue";
 
-int getMsgQueue(mode_t mode)
-{
+int getMsgQueue(mode_t mode){
   // get the message queue identifier
   int msqid = msgget(MSGQUEUE_KEY, S_IRUSR | mode);
   if (msqid == -1)

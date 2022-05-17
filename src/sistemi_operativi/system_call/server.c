@@ -25,6 +25,7 @@
 #include "fifo.h"
 #include "shared_memory.h"
 #include "fs.h"
+#include "defines.h"
 
 short FIFO1SemValues[1];
 short FIFO2SemValues[1];
@@ -55,12 +56,16 @@ int main(int argc, char *argv[])
 
   printf("<Server> waiting for a client...\n");
 
-  int FIFO1 = getFIFO1(O_RDONLY);
-  int FIFO2 = getFIFO2(O_RDONLY);
-
+  int FIFO1 = getFIFO(FIFO1PATH,O_RDONLY);
+  int FIFO2 = 0; //getFIFO(FIFO2PATH,O_RDONLY);
+    
+  //int FIFO2 = getFIFO2(O_RDONLY);
+ 
   if (FIFO1 == -1 || FIFO2 == -1)
     ErrExit("fifo failed");
 
+  fflush(stdout);
+  
   // reading bytes from fifo
   int bR = read(FIFO1, &filesCounter, sizeof(int));
   if (bR == -1)
@@ -74,8 +79,7 @@ int main(int argc, char *argv[])
 
   shmDisposition->serverOk = 1;
 
-  while (messagesReceived < filesCounter * 4)
-  {
+ while (messagesReceived < filesCounter * 4){
     size_t mSize = sizeof(struct SerializedMessage) - sizeof(long);
     char messageBuff[MESSAGE_SIZE] = " ";
     int msgLength = 0;
