@@ -7,6 +7,11 @@
 #include "defines.h"
 #include "err_exit.h"
 
+char MEDIA_SHM [] = "ShdMem"; 
+char MEDIA_FIFO1 [] = "FIFO1"; 
+char MEDIA_FIFO2 [] = "FIFO2"; 
+char MEDIA_MSGQUEUE [] = "MsgQueue";
+
 int getMsgQueue(mode_t mode)
 {
   // get the message queue identifier

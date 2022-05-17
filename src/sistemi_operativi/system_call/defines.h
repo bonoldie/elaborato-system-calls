@@ -47,9 +47,9 @@ struct SerializedMessage {
 int getMsgQueue(mode_t mode);
 
 // Media
-const char MEDIA_SHM []= "ShdMem"; 
-const char MEDIA_FIFO1 []= "FIFO1"; 
-const char MEDIA_FIFO2 []= "FIFO2"; 
-const char MEDIA_MSGQUEUE []= "MsgQueue";
+extern char MEDIA_SHM []; 
+extern char MEDIA_FIFO1 []; 
+extern char MEDIA_FIFO2 []; 
+extern char MEDIA_MSGQUEUE [];
 
 #endif

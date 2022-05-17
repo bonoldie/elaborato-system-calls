@@ -43,10 +43,10 @@ int main(int argc, char *argv[])
 
   setupSemaphores();
 
-  printSemValues(ShmSemId, 0);
-  printSemValues(FIFO1SemId, 0);
-  printSemValues(FIFO2SemId, 0);
-  printSemValues(MsgQueueSemId, 0);
+  printSemValues(ShmSemId, NULL);
+  printSemValues(FIFO1SemId, NULL);
+  printSemValues(FIFO2SemId, NULL);
+  printSemValues(MsgQueueSemId, NULL);
 
   shmDisposition = init_shared_memory();
   shmDisposition->serverOk = 0;
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
     printf("<Server> it looks like I did not receive");
 
   printf("<Server> Received %i \n", filesCounter);
-
+  
   messages = (struct ApplicationMsg *)malloc(sizeof(struct ApplicationMsg) * filesCounter * 4);
 
   shmDisposition->serverOk = 1;
@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
   sortMessages(messages,messagesReceived);
   
   // Scrittura su file
-  for(int i = 0; i < messagesReceived; i + 4){
+  for(int i = 0; i < messagesReceived; i += 4){
     writeOutFile(&(messages[i]));
   }
 
