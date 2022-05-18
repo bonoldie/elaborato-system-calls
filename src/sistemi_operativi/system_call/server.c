@@ -44,10 +44,10 @@ int main(int argc, char *argv[])
 
   setupSemaphores();
 
-  printSemValues(ShmSemId, NULL);
-  printSemValues(FIFO1SemId, NULL);
-  printSemValues(FIFO2SemId, NULL);
-  printSemValues(MsgQueueSemId, NULL);
+  printSemValues(ShmSemId);
+  printSemValues(FIFO1SemId);
+  printSemValues(FIFO2SemId);
+  printSemValues(MsgQueueSemId);
 
   shmDisposition = init_shared_memory();
   shmDisposition->serverOk = 0;
@@ -56,16 +56,14 @@ int main(int argc, char *argv[])
 
   printf("<Server> waiting for a client...\n");
 
-  int FIFO1 = getFIFO(FIFO1PATH,O_RDONLY);
-  int FIFO2 = 0; //getFIFO(FIFO2PATH,O_RDONLY);
-    
-  //int FIFO2 = getFIFO2(O_RDONLY);
+  int FIFO1 = getFIFO(FIFO1PATH,O_RDWR);
+  int FIFO2 = getFIFO(FIFO2PATH,O_RDWR);
+  
  
   if (FIFO1 == -1 || FIFO2 == -1)
     ErrExit("fifo failed");
 
-  fflush(stdout);
-  
+
   // reading bytes from fifo
   int bR = read(FIFO1, &filesCounter, sizeof(int));
   if (bR == -1)
@@ -153,7 +151,6 @@ int main(int argc, char *argv[])
         messagesReceived++;
       }
     }
-
     
   }
   // Ordina tutti i messaggi ricevuti

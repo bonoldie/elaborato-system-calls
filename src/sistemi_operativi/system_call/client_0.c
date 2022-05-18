@@ -48,7 +48,9 @@ char CWDARG[250];
 char *filePaths[MAX_FILES];
 int filePathsCounter;
 
-struct ApplicationMsg messages[4];
+int MsgQueueId = -1;
+
+
 
 void sigHandler(int sig)
 {
@@ -114,8 +116,11 @@ void startComunication()
     // FIFO 1 CLIENT
     printf("<Client> Opening FIFO1 ...\n");
     // Open the FIFO in write-only mode
-    int FIFO1 = getFIFO(FIFO1PATH,O_WRONLY);
+    int FIFO1 = getFIFO(FIFO1PATH, O_RDWR);
+    int FIFO2 = getFIFO(FIFO2PATH, O_RDWR);
 
+    int MsgQueueId = getMsgQueue(IPC_CREAT | S_IRUSR | S_IWUSR);
+  
     printf("<Client> Waiting for serverOk\n");
 
     printf("<Client> sending %i\n", filePathsCounter);
@@ -135,7 +140,7 @@ void startComunication()
     fflush(stdout);
 
     // Valore sem client N dei path
-    printSemValues(CLIENTSemId, filePathsCounter);
+    printSemValues(CLIENTSemId);
 
     // Creazione dei figli
     pid_t pid;
@@ -151,9 +156,8 @@ void startComunication()
         }
         else if (pid == 0)
         {
-            // wait the i-th child
-
-            //!!!!!!!!!
+            struct ApplicationMsg messages[4];
+          
             buildMessages(filePaths[i], messages);
 
             for (int j = 0; j < 4; ++j)
@@ -162,13 +166,56 @@ void startComunication()
                 serializeMessage(&(messages[j]), serialized);
                 printf("%s \n", serialized);
             }
+
+            //sem da 50 a 0
+            semOp(CLIENTSemId, 0, -1);
+            //sem da 0 a 50
+            semOp(CLIENTSemId, 1, -1);
+
             printf("PIDchild: %d, PIDparent: %d\n", getpid(), getppid());
-            semOp(CLIENTSemId, i, -1);
-            semOp(CLIENTSemId, (unsigned short)(i == 0) ? filePathsCounter - 1 : i - 1, 1);
-            exit(code);
+            
+            // LOCK FIFO 1
+            semOp(FIFO1SemId, 0, -1);
+            write(FIFO1, &(messages[0]), (strlen(&(messages[0])) + 1) * sizeof(char));
+              
+            // LOCK FIFO 2
+            semOp(FIFO2SemId, 0, -1);
+            write(FIFO2, &(messages[1]), (strlen(&(messages[1])) + 1) * sizeof(char));
+
+            // LOCK MSGQUEUE
+            semOp(MsgQueueSemId, 0, -1);
+            
+            struct SerializedMessage msgqueueMsg = {
+          
+              .mtype = 0,
+            };
+
+          strcpy(&(msgqueueMsg.mtext),&(messages[2]));
+
+          
+            size_t mSize = sizeof(struct SerializedMessage) - sizeof(long);
+
+            if(msgsnd(MsgQueueId,&(msgqueueMsg),mSize,0) == -1){
+              ErrExit("<Client_N> msgqueue error");
+            }
+            
+            // LOCK SHM
+            semOp(ShmSemId, i % 50, -1);
+  
+            // Scrive il messaggio dalla Shared Memory
+            strcpy(&(shmDisposition->messages[i % 50]), &(messages[4]));
         }
     }
 
+    short values[2];
+    
+    do {
+      sleep(0.1);
+      getSemValues(CLIENTSemId, &values);  
+    }while(values[0] > 0);
+
+    semOp(CLIENTSemId,1,filePathsCounter);
+  
     int status = 0;
     // get termination status of each created subprocess.
     while ((pid = wait(&status)) != -1)

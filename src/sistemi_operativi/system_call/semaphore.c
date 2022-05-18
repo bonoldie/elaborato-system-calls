@@ -71,29 +71,23 @@ void initSemaphores()
 
 void initClientSemaphore(int filePathsCounter){
     
-  CLIENTSemId = semget(CLIENT_PRIVATE, filePathsCounter, IPC_CREAT | S_IRUSR | S_IWUSR);
+  CLIENTSemId = semget(CLIENT_PRIVATE, 2, IPC_CREAT | S_IRUSR | S_IWUSR);
 
   if (CLIENTSemId == -1){
-        ErrExit("<setupSemaphores> semget failed");
+        ErrExit("<initClientSemaphore> semget failed");
     }
   
-  int i;
-  short ____[i];
+  short childrenWaitGo[2] = {(short)filePathsCounter,0};
   
-  for(i = 0; i < filePathsCounter; ++i){
-       ____[i] = 0;
-    }
-  ____[i - 1] = 1;
-
-    if (setSemValues(CLIENTSemId,&____) == -1)
+  if (setSemValues(CLIENTSemId,childrenWaitGo) == -1)
     {
-        ErrExit("<initSemaphores> semctl failed");
+        ErrExit("<initClientSemaphore> semctl failed");
   
 }
   
   }
 
-void printSemValues(int semid, int filePathsCounter) // = 1 in FIFO
+void printSemValues(int semid) // = 1 in FIFO
 {
     int semLength = 0;
 
@@ -101,8 +95,8 @@ void printSemValues(int semid, int filePathsCounter) // = 1 in FIFO
     {
         semLength = 1;
     }
-    else if(semid == CLIENTSemId){
-      semLength = filePathsCounter;
+   else if(semid == CLIENTSemId){
+     semLength = 2;
     }
     else
     {

@@ -33,6 +33,6 @@ void initSemaphores();
 void setupSemaphores();
 
 
-void printSemValues(int semid, int filePathsCounter);
+void printSemValues(int semid);
 
 #endif

@@ -28,8 +28,8 @@ int sortMessages(struct ApplicationMsg *msgs, int arrayLength);
 #define MSGQUEUE_KEY 987654321
 
 // FIFOs
-#define FIFO1PATH "/tmp/1/FIFO1"
-#define FIFO2PATH "/tmp/2/FIFO2"
+#define FIFO1PATH "/tmp/FIFO1"
+#define FIFO2PATH "/tmp/FIFO2"
 
 // Semaphores
 #define FIFO1_PRIVATE (key_t)111111
