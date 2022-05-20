@@ -78,6 +78,10 @@ int main(int argc, char *argv[])
   shmDisposition->serverOk = 1;
 
  while (messagesReceived < filesCounter * 4){
+
+   printf("\nsono entrato nel while BIG\n");
+
+   
     size_t mSize = sizeof(struct SerializedMessage) - sizeof(long);
     char messageBuff[MESSAGE_SIZE] = " ";
     int msgLength = 0;
@@ -85,25 +89,33 @@ int main(int argc, char *argv[])
 
     // Controllo FIFO1
     getSemValues(FIFO1SemId, FIFO1SemValues);
+    printSemValues(FIFO1SemId);// sem a 1
 
-    if (FIFO1SemValues[0] != 0)
-    {
+    if (FIFO1SemValues[0] != 0){
       // Leggi il messaggio dalla FIFO1
+      printf("\nsono entrato in fifo1\n");
+      
       while (read(FIFO1, &(messageBuff[msgLength]), sizeof(char)) > 0 || messageBuff[msgLength] != '\0');
+
+      printf("\n sono nel while di fifo1\n");
 
       deserializeMessage(messageBuff, &(messages[messagesReceived]));
       strcpy(&(messages[messagesReceived].medium),&MEDIA_FIFO1);
 
-      semOp(FIFO1SemId, 0, 1);
+      semOp(FIFO1SemId, 0, 1); 
+      printSemValues(FIFO1SemId);
       messagesReceived++;
       msgLength = 0;
     }
 
     getSemValues(FIFO2SemId, FIFO2SemValues);
+    printSemValues(FIFO2SemId);
 
-    if (FIFO2SemValues[0] != 0)
-    {
-      // Leggi il messaggio dalla FIFO2
+   // Leggi il messaggio dalla FIFO2
+    if (FIFO2SemValues[0] != 0){
+
+      printf("\nsono entrato in fifo2\n");
+    
       while (read(FIFO2, &(messageBuff[msgLength]), sizeof(char)) > 0 || messageBuff[msgLength] != '\0');
 
       deserializeMessage(messageBuff, &(messages[messagesReceived]));
@@ -114,21 +126,17 @@ int main(int argc, char *argv[])
       msgLength = 0;
     }
 
-    if ((msgRec = msgrcv(MsgQueueId, &messageBuff, mSize, 0, IPC_NOWAIT)) == -1)
-    {
-      if (errno != EAGAIN && errno != ENOMSG)
-      {
-        ErrExit("<Server> Error while reading from MsgQueue ");
-      }
+   // Leggi il messaggio dalla MsgQueue
+
+    if ((msgRec = msgrcv(MsgQueueId, &messageBuff, mSize,1,IPC_NOWAIT)) == -1){
+    if (errno != EAGAIN && errno != ENOMSG)
+        ErrExit("<Server> Error while reading from MsgQueue");
     }
-
-    if (msgRec > 0)
-    {
-      // Leggi il messaggio dalla MsgQueue
-
+   
+    if (msgRec > 0){
       deserializeMessage(messageBuff, &(messages[messagesReceived]));
 
-      strcpy(&(messages[messagesReceived].medium),&MEDIA_MSGQUEUE);
+    strcpy(&(messages[messagesReceived].medium),&MEDIA_MSGQUEUE);
 
       semOp(MsgQueueSemId, 0, 1);
       messagesReceived++;
@@ -153,6 +161,7 @@ int main(int argc, char *argv[])
     }
     
   }
+  
   // Ordina tutti i messaggi ricevuti
   sortMessages(messages,messagesReceived);
   

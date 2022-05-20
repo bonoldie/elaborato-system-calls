@@ -1,5 +1,5 @@
-/// @file client.c
-/// @brief Contiene l'implementazione del client.
+// @file client.c
+// @brief Contiene l'implementazione del client.
 // kill -SIGKILL $(ps -aux | grep -m1 client_0 | cut -d' ' -f6) $(ps -aux | grep -m1 // client_0 | cut -d' ' -f7)
 
 #include <stdlib.h>
@@ -30,6 +30,7 @@
 #include "fifo.h"
 
 struct MemoryDisposition *shmDisposition;
+struct SerializedMessage msgqueueMsg;
 
 void startComunication();
 void endComunication();
@@ -108,6 +109,8 @@ void startComunication()
     chdir(CWDARG);
 
     welcomeMessage();
+  
+    printf("%d", MsgQueueId);
 
     filePathsCounter = loadFilePaths(".", filePaths);
 
@@ -119,7 +122,7 @@ void startComunication()
     int FIFO1 = getFIFO(FIFO1PATH, O_RDWR);
     int FIFO2 = getFIFO(FIFO2PATH, O_RDWR);
 
-    int MsgQueueId = getMsgQueue(IPC_CREAT | S_IRUSR | S_IWUSR);
+    MsgQueueId = getMsgQueue(IPC_CREAT | S_IRUSR | S_IWUSR);
   
     printf("<Client> Waiting for serverOk\n");
 
@@ -166,47 +169,61 @@ void startComunication()
                 serializeMessage(&(messages[j]), serialized);
                 printf("%s \n", serialized);
             }
-
+            printSemValues(CLIENTSemId);
             //sem da 50 a 0
             semOp(CLIENTSemId, 0, -1);
             //sem da 0 a 50
             semOp(CLIENTSemId, 1, -1);
-
-            printf("PIDchild: %d, PIDparent: %d\n", getpid(), getppid());
             
+            //printf("PIDchild: %d, PIDparent: %d\n", getpid(), getppid());
+     
+          
             // LOCK FIFO 1
             semOp(FIFO1SemId, 0, -1);
             write(FIFO1, &(messages[0]), (strlen(&(messages[0])) + 1) * sizeof(char));
-              
+             
             // LOCK FIFO 2
             semOp(FIFO2SemId, 0, -1);
             write(FIFO2, &(messages[1]), (strlen(&(messages[1])) + 1) * sizeof(char));
 
             // LOCK MSGQUEUE
             semOp(MsgQueueSemId, 0, -1);
+          
             
-            struct SerializedMessage msgqueueMsg = {
-          
-              .mtype = 0,
+            
+            struct SerializedMessage msgqueueMsg = { 
+              .mtype = 1,
             };
-
-          strcpy(&(msgqueueMsg.mtext),&(messages[2]));
-
           
-            size_t mSize = sizeof(struct SerializedMessage) - sizeof(long);
+          memcpy(msgqueueMsg.mtext, &(messages[2]), strlen(&(messages[2]))); 
+          
+//ho tolto il + 1
+          
+            
 
-            if(msgsnd(MsgQueueId,&(msgqueueMsg),mSize,0) == -1){
+           // strcpy(&(msgqueueMsg.mtext),&(messages[2]));
+
+          size_t mSize = sizeof(struct SerializedMessage) - sizeof(long);
+          
+
+          if(msgsnd(MsgQueueId,&(msgqueueMsg),mSize,0) == -1){
               ErrExit("<Client_N> msgqueue error");
             }
+
+         
             
             // LOCK SHM
             semOp(ShmSemId, i % 50, -1);
   
             // Scrive il messaggio dalla Shared Memory
             strcpy(&(shmDisposition->messages[i % 50]), &(messages[4]));
-        }
+
+          exit(code);
+
+         }
     }
 
+    //fflush(0);
     short values[2];
     
     do {

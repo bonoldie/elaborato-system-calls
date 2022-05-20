@@ -42,7 +42,7 @@ int sortMessages(struct ApplicationMsg *msgs, int arrayLength);
 struct SerializedMessage {
   long mtype;
   char mtext[MESSAGE_SIZE];
-};
+}m;
 
 int getMsgQueue(mode_t mode);
 
