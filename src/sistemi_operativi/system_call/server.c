@@ -78,71 +78,86 @@ int main(int argc, char *argv[])
   shmDisposition->serverOk = 1;
 
  while (messagesReceived < filesCounter * 4){
-
-   printf("\nsono entrato nel while BIG\n");
-
    
     size_t mSize = sizeof(struct SerializedMessage) - sizeof(long);
-    char messageBuff[MESSAGE_SIZE] = " ";
+    char messageBuff[MESSAGE_SIZE] = "";
     int msgLength = 0;
     int msgRec = 0;
 
+    memset(messageBuff,1,sizeof(char)*MESSAGE_SIZE);
+   
     // Controllo FIFO1
     getSemValues(FIFO1SemId, FIFO1SemValues);
-    printSemValues(FIFO1SemId);// sem a 1
-
-    if (FIFO1SemValues[0] != 0){
+    //printSemValues(FIFO1SemId);// sem a 1
+   
+    if (FIFO1SemValues[0] == 1){
+      
       // Leggi il messaggio dalla FIFO1
       printf("\nsono entrato in fifo1\n");
       
-      while (read(FIFO1, &(messageBuff[msgLength]), sizeof(char)) > 0 || messageBuff[msgLength] != '\0');
-
-      printf("\n sono nel while di fifo1\n");
-
+      while(read(FIFO1, &(messageBuff[msgLength]), sizeof(char)) > 0){
+        printf("%c", messageBuff[msgLength]);
+        if(messageBuff[msgLength] == '\0'){
+          break;
+        }
+        
+        msgLength++;
+      }
+      
       deserializeMessage(messageBuff, &(messages[messagesReceived]));
       strcpy(&(messages[messagesReceived].medium),&MEDIA_FIFO1);
 
       semOp(FIFO1SemId, 0, 1); 
-      printSemValues(FIFO1SemId);
       messagesReceived++;
       msgLength = 0;
     }
 
     getSemValues(FIFO2SemId, FIFO2SemValues);
-    printSemValues(FIFO2SemId);
+    //printSemValues(FIFO2SemId);
 
    // Leggi il messaggio dalla FIFO2
-    if (FIFO2SemValues[0] != 0){
+    if (FIFO2SemValues[0] == 1){
 
       printf("\nsono entrato in fifo2\n");
     
-      while (read(FIFO2, &(messageBuff[msgLength]), sizeof(char)) > 0 || messageBuff[msgLength] != '\0');
-
+       while(read(FIFO2, &(messageBuff[msgLength]), sizeof(char)) > 0){
+        printf("%c", messageBuff[msgLength]);
+        if(messageBuff[msgLength] == '\0'){
+          break;
+        }
+        
+        msgLength++;
+      }
+      
       deserializeMessage(messageBuff, &(messages[messagesReceived]));
       strcpy(&(messages[messagesReceived].medium),&MEDIA_FIFO2);
 
-      semOp(FIFO2SemId, 0, 1);
+      semOp(FIFO2SemId, 0, 1); 
       messagesReceived++;
       msgLength = 0;
     }
-
+    
+   sleep(1);
+    
    // Leggi il messaggio dalla MsgQueue
+   struct SerializedMessage serializedMsg ;
 
-    if ((msgRec = msgrcv(MsgQueueId, &messageBuff, mSize,1,IPC_NOWAIT)) == -1){
-    if (errno != EAGAIN && errno != ENOMSG)
+    if ((msgRec = msgrcv(MsgQueueId, &serializedMsg, mSize, 1, IPC_NOWAIT)) == -1){
+      if (errno != EAGAIN && errno != ENOMSG)
         ErrExit("<Server> Error while reading from MsgQueue");
     }
    
     if (msgRec > 0){
-      deserializeMessage(messageBuff, &(messages[messagesReceived]));
-
-    strcpy(&(messages[messagesReceived].medium),&MEDIA_MSGQUEUE);
+      //messageBuff occhio a sto bastardo
+      deserializeMessage(&(serializedMsg.mtext), &(messages[messagesReceived]));
+      strcpy(&(messages[messagesReceived].medium),&MEDIA_MSGQUEUE);
 
       semOp(MsgQueueSemId, 0, 1);
       messagesReceived++;
       msgLength = 0;
     }
-
+   
+/*
     getSemValues(ShmSemId, ShmSemValues);
 
     for (int sem = 0; sem < 50; sem++)
@@ -158,7 +173,7 @@ int main(int argc, char *argv[])
         semOp(ShmSemId, sem, 1);
         messagesReceived++;
       }
-    }
+    }*/
     
   }
   

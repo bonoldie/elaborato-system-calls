@@ -149,24 +149,31 @@ int serializeMessage(struct ApplicationMsg *msg, char *buff)
 
 int deserializeMessage(char *buff, struct ApplicationMsg *msg)
 {
+    //printf("CCCC");
+  
     char PID[10] = "";
 
     char *lastBracket = strstr(buff, "]");
     char *firstComma = strstr(buff, ", ");
-    char *secondComma = strstr(buff[(int)(firstComma + 1)], ", ");
+    char *secondComma = strstr(firstComma + 1, ", ");
 
     if (lastBracket == NULL || firstComma == NULL || secondComma == NULL)
     {
         return -1;
     }
 
-    strncat(msg->payload, buff[1], ((firstComma - buff) / sizeof(char)) + 1);
-
-    strncat(PID, buff[(int)(firstComma + 2 * sizeof(char))], ((secondComma - buff) / sizeof(char)) + 1);
+    //printf("\n %x %x %x %x\n",buff, firstComma,secondComma,lastBracket);
+  
+    strncat(msg->payload, &(buff[1]), firstComma - buff - 1);
+    printf("%s\n",msg->payload);
+    
+    strncat(PID, firstComma + 2 , secondComma - firstComma - 2);
     msg->PID = atoi(PID);
-
-    strncat(msg->path, buff[(int)(secondComma + 2)], (lastBracket - secondComma) / sizeof(char));
-
+    printf("%i\n",msg->PID);
+  
+    strncat(msg->path, secondComma + 2, lastBracket - secondComma - 1);
+    printf("%s\n",msg->path);
+  
     return 0;
 }
 
