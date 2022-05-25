@@ -171,7 +171,7 @@ int deserializeMessage(char *buff, struct ApplicationMsg *msg)
     msg->PID = atoi(PID);
     printf("%i\n",msg->PID);
   
-    strncat(msg->path, secondComma + 2, lastBracket - secondComma - 1);
+    strncat(msg->path, secondComma + 2, lastBracket - secondComma - 2);
     printf("%s\n",msg->path);
   
     return 0;
@@ -193,7 +193,7 @@ int writeOutFile(struct ApplicationMsg *msgs)
 
         sprintf(buff, "[Parte %i, del file %s, spedita dal processo %i tramite %s]\n%s\n\n", i + 1, msg.path, msg.PID, msg.medium);
 
-        write(fd, buff, strlen(buff) * sizeof(char));
+        write(fd, buff, strlen(buff) );
 
     }
 

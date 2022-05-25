@@ -59,7 +59,7 @@ void setupSemaphores()
 void initSemaphores()
 {
     short _[1] = {2};
-    short __[50] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,};
+    short __[50] = {2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,};
     short ___[1] = {50};
   
     if (setSemValues(FIFO1SemId, &_) == -1 || setSemValues(FIFO2SemId, &_) == -1 || setSemValues(ShmSemId, &__) == -1 || setSemValues(MsgQueueSemId, &___) == -1)

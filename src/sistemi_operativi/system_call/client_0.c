@@ -209,16 +209,16 @@ void startComunication()
 
           if(msgsnd(MsgQueueId,&(msgqueueMsg),mSize,0) == -1){
               ErrExit("<Client_N> msgqueue error");
-            }
-            exit(0);
-
-         
+            }         
             
             // LOCK SHM
-            semOp(ShmSemId, i % 50, -1);
+            semOp(ShmSemId, i % 50, -2);
   
             // Scrive il messaggio dalla Shared Memory
-            strcpy(&(shmDisposition->messages[i % 50]), &(serialized[4]));
+            memcpy(&(shmDisposition->messages[i % 50]),&(serialized[3]),strlen(&(serialized[3])) + 1 );
+            // strcpy(, &(serialized[4]));  
+
+          semOp(ShmSemId, i % 50, 1);
 
           exit(code);
 

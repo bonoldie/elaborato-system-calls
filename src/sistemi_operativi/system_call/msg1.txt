@@ -1,1 +1,0 @@
-[MNB, 7955, /home/runner/elaborato-system-calls/src/sistemi_operativi/system_call/files/./subdir/sendme_2.txt]

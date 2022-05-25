@@ -28,7 +28,9 @@ int sortMessages(struct ApplicationMsg *msgs, int arrayLength)
     {
       if (msgs[i].PID > msgs[j].PID)
       {
-        msgs[i], msgs[j] = msgs[j], msgs[i];
+        struct ApplicationMsg temp = msgs[i];
+        msgs[i] = msgs[j];
+        msgs[j] = temp;
       }
     }
   }

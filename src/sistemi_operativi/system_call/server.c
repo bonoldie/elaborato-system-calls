@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 
   shmDisposition->serverOk = 1;
 
- while (messagesReceived < filesCounter * 4){
+ while (messagesReceived != filesCounter * 4){
    
     size_t mSize = sizeof(struct SerializedMessage) - sizeof(long);
     char messageBuff[MESSAGE_SIZE] = "";
@@ -137,10 +137,11 @@ int main(int argc, char *argv[])
       msgLength = 0;
     }
     
-   sleep(1);
+   
     
    // Leggi il messaggio dalla MsgQueue
    struct SerializedMessage serializedMsg ;
+   
 
     if ((msgRec = msgrcv(MsgQueueId, &serializedMsg, mSize, 1, IPC_NOWAIT)) == -1){
       if (errno != EAGAIN && errno != ENOMSG)
@@ -149,6 +150,7 @@ int main(int argc, char *argv[])
    
     if (msgRec > 0){
       //messageBuff occhio a sto bastardo
+      printf("Sono nella msq\n");
       deserializeMessage(&(serializedMsg.mtext), &(messages[messagesReceived]));
       strcpy(&(messages[messagesReceived].medium),&MEDIA_MSGQUEUE);
 
@@ -156,35 +158,39 @@ int main(int argc, char *argv[])
       messagesReceived++;
       msgLength = 0;
     }
-   
-/*
-    getSemValues(ShmSemId, ShmSemValues);
 
+    getSemValues(ShmSemId, ShmSemValues);
+   
     for (int sem = 0; sem < 50; sem++)
     {
-      if (ShmSemValues[sem] == 0)
+      
+      if (ShmSemValues[sem] == 1)
       {
         // Leggi il messaggio dalla Shared Memory
-        strcpy(&messageBuff, &(shmDisposition->messages[sem]));
-
-        deserializeMessage(messageBuff, &(messages[messagesReceived]));
+        printf("Sono nella shmem\n");
+        memcpy(messageBuff, &(shmDisposition->messages[sem]), MESSAGE_SIZE);
+        
+        deserializeMessage(&messageBuff, &(messages[messagesReceived]));
+        
         strcpy(&(messages[messagesReceived].medium),&MEDIA_SHM);
-
         semOp(ShmSemId, sem, 1);
         messagesReceived++;
       }
-    }*/
-    
+    }
   }
   
   // Ordina tutti i messaggi ricevuti
   sortMessages(messages,messagesReceived);
+
   
   // Scrittura su file
   for(int i = 0; i < messagesReceived; i += 4){
     writeOutFile(&(messages[i]));
   }
 
+  
+  printf("HO SCRITTO");
+  fflush(stdout);
   // Pulizia e exit
   printf("<Server> removing FIFO...\n");
   // Close the FIFO
