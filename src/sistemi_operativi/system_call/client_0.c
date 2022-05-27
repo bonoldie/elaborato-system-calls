@@ -143,7 +143,7 @@ void startComunication()
     fflush(stdout);
 
     // Valore sem client N dei path
-    printSemValues(CLIENTSemId);
+    //printSemValues(CLIENTSemId);
 
     // Creazione dei figli
     pid_t pid;
@@ -167,9 +167,9 @@ void startComunication()
             for (int j = 0; j < 4; ++j)
             {
                 serializeMessage(&(messages[j]), &(serialized[j]));
-                printf("%s \n", &(serialized[j]));
+            //    printf("%s \n", &(serialized[j]));
             }
-            printSemValues(CLIENTSemId);
+            //printSemValues(CLIENTSemId);
             //sem da 50 a 0
             semOp(CLIENTSemId, 0, -1);
             //sem da 0 a 50
@@ -215,12 +215,12 @@ void startComunication()
             semOp(ShmSemId, i % 50, -2);
   
             // Scrive il messaggio dalla Shared Memory
-            memcpy(&(shmDisposition->messages[i % 50]),&(serialized[3]),strlen(&(serialized[3])) + 1 );
-            // strcpy(, &(serialized[4]));  
+            // memcpy(&(shmDisposition->messages[i % 50]),&(serialized[3]),strlen(&(serialized[3])) + 1 );
+            strcpy(&(shmDisposition->messages[i % 50]), &(serialized[3]));  
 
           semOp(ShmSemId, i % 50, 1);
 
-          exit(code);
+         exit(code);
 
          }
     }

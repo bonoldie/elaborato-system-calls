@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
       }
       
       deserializeMessage(messageBuff, &(messages[messagesReceived]));
-      strcpy(&(messages[messagesReceived].medium),&MEDIA_FIFO1);
+      messages[messagesReceived].medium = MEDIA_FIFO1_ID;
 
       semOp(FIFO1SemId, 0, 1); 
       messagesReceived++;
@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
       }
       
       deserializeMessage(messageBuff, &(messages[messagesReceived]));
-      strcpy(&(messages[messagesReceived].medium),&MEDIA_FIFO2);
+      messages[messagesReceived].medium = MEDIA_FIFO2_ID;
 
       semOp(FIFO2SemId, 0, 1); 
       messagesReceived++;
@@ -150,14 +150,16 @@ int main(int argc, char *argv[])
    
     if (msgRec > 0){
       //messageBuff occhio a sto bastardo
-      printf("Sono nella msq\n");
+      printf("\nSono nella msq\n");
       deserializeMessage(&(serializedMsg.mtext), &(messages[messagesReceived]));
-      strcpy(&(messages[messagesReceived].medium),&MEDIA_MSGQUEUE);
+      messages[messagesReceived].medium = MEDIA_MSGQUEUE_ID;
 
       semOp(MsgQueueSemId, 0, 1);
       messagesReceived++;
       msgLength = 0;
     }
+   
+
 
     getSemValues(ShmSemId, ShmSemValues);
    
@@ -168,13 +170,14 @@ int main(int argc, char *argv[])
       {
         // Leggi il messaggio dalla Shared Memory
         printf("Sono nella shmem\n");
-        memcpy(messageBuff, &(shmDisposition->messages[sem]), MESSAGE_SIZE);
-        
-        deserializeMessage(&messageBuff, &(messages[messagesReceived]));
-        
-        strcpy(&(messages[messagesReceived].medium),&MEDIA_SHM);
+        //memcpy(messageBuff, &(shmDisposition->messages[sem]), MESSAGE_SIZE);
+        strcpy(messageBuff,&(shmDisposition->messages[sem]));
+        printf("SHARED: %s\n",messageBuff);
+        deserializeMessage(messageBuff, &(messages[messagesReceived]));
+        messages[messagesReceived].medium = MEDIA_SHM_ID;
         semOp(ShmSemId, sem, 1);
         messagesReceived++;
+        msgLength = 0;
       }
     }
   }
@@ -182,13 +185,13 @@ int main(int argc, char *argv[])
   // Ordina tutti i messaggi ricevuti
   sortMessages(messages,messagesReceived);
 
-  
   // Scrittura su file
   for(int i = 0; i < messagesReceived; i += 4){
     writeOutFile(&(messages[i]));
   }
 
-  
+  free(messages);
+
   printf("HO SCRITTO");
   fflush(stdout);
   // Pulizia e exit

@@ -179,7 +179,14 @@ int deserializeMessage(char *buff, struct ApplicationMsg *msg)
 
 int writeOutFile(struct ApplicationMsg *msgs)
 {
-    int fd = open(msgs[0].path, O_CREAT | O_WRONLY);
+    char filePathOut[200] = "";
+    char appendToPath[] = "_out";
+
+  strcpy(filePathOut,msgs[0].path);
+    
+  strcat(filePathOut, appendToPath);
+    
+  int fd = open(filePathOut, O_CREAT | O_TRUNC | O_WRONLY , S_IRUSR | S_IRUSR);
 
     if (fd < 0)
     {
@@ -191,9 +198,9 @@ int writeOutFile(struct ApplicationMsg *msgs)
         struct ApplicationMsg msg = msgs[i];
         char buff[MESSAGE_SIZE] = "";
 
-        sprintf(buff, "[Parte %i, del file %s, spedita dal processo %i tramite %s]\n%s\n\n", i + 1, msg.path, msg.PID, msg.medium);
+        sprintf(buff, "[Parte %i, del file %s, spedita dal processo %i tramite %s]\n%s\n\n", i + 1, msg.path, msg.PID, MEDIA[msg.medium], msg.payload);
 
-        write(fd, buff, strlen(buff) );
+        write(fd, buff, strlen(buff));
 
     }
 

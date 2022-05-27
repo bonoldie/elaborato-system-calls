@@ -18,10 +18,12 @@ struct ApplicationMsg
     int PID;
     char payload[MESSAGE_PAYLOAD_SIZE];
     char path[MESSAGE_META_SIZE];
-    char medium[500];
+    // char medium[500];
+    int medium;
 };
 
 int sortMessages(struct ApplicationMsg *msgs, int arrayLength);
+
 
 // Shared memory
 #define SHM_KEY 123456789
@@ -42,14 +44,16 @@ int sortMessages(struct ApplicationMsg *msgs, int arrayLength);
 struct SerializedMessage {
   long mtype;
   char mtext[MESSAGE_SIZE];
-}m;
+};
 
 int getMsgQueue(mode_t mode);
 
 // Media
-extern char MEDIA_SHM []; 
-extern char MEDIA_FIFO1 []; 
-extern char MEDIA_FIFO2 []; 
-extern char MEDIA_MSGQUEUE [];
+#define MEDIA_FIFO1_ID 0;
+#define MEDIA_FIFO2_ID 1;
+#define MEDIA_MSGQUEUE_ID 2;
+#define MEDIA_SHM_ID 3;
+
+extern char* MEDIA[];
 
 #endif

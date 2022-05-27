@@ -7,10 +7,12 @@
 #include "defines.h"
 #include "err_exit.h"
 
-char MEDIA_SHM [] = "ShdMem"; 
-char MEDIA_FIFO1 [] = "FIFO1"; 
-char MEDIA_FIFO2 [] = "FIFO2"; 
-char MEDIA_MSGQUEUE [] = "MsgQueue";
+char * MEDIA []= {
+  "FIFO1",
+  "FIFO2",
+  "MsgQueue",
+  "ShdMem"
+}; 
 
 int getMsgQueue(mode_t mode){
   // get the message queue identifier
@@ -21,17 +23,36 @@ int getMsgQueue(mode_t mode){
 }
 
 int sortMessages(struct ApplicationMsg *msgs, int arrayLength)
-{
-  for (int i = 0; i < arrayLength - 1; ++i)
-  {
-    for (int j = i; j < arrayLength - 1; ++j)
-    {
-      if (msgs[i].PID > msgs[j].PID)
-      {
-        struct ApplicationMsg temp = msgs[i];
-        msgs[i] = msgs[j];
-        msgs[j] = temp;
-      }
+{  
+  for (int  i = 0; i < arrayLength - 1; i++) {
+      int index = i;
+      for (int j = i + 1; j < arrayLength; j++)
+         if (msgs[j].PID < msgs[index].PID) 
+            index = j;
+      
+      struct ApplicationMsg temp = msgs[index];  
+      msgs[index] = msgs[i];
+      msgs[i] = temp;
+  
+    }
+
+
+  for (int  globalIndex = 4; globalIndex < arrayLength - 1; globalIndex += 4) {
+    
+  for (int  i = globalIndex; i < globalIndex + 4; i++) {
+      int index = i;
+      for (int j = i + 1; j < globalIndex + 4; j++)
+         if (msgs[j].medium < msgs[index].medium) 
+            index = j;
+      
+      struct ApplicationMsg temp = msgs[index];  
+      msgs[index] = msgs[i];
+      msgs[i] = temp;
+  
     }
   }
-}
+    
+
+    }
+
+
