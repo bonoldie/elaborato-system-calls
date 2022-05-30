@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <limits.h>
+#include <stdlib.h>
 
 #include <string.h>
 
@@ -75,11 +77,13 @@ int loadFilePaths(char *currdir, char **paths)
             // Match the file requirements
             if (strstr(dentry->d_name, "sendme_") == dentry->d_name && fileStat.st_size < MAX_FILE_SIZE)
             {
-                char fullFilePath[2000] = "";
+                char fullFilePath[4096] = "";
 
                 strcat(fullFilePath, CWD);
                 strcat(fullFilePath, "/");
                 strcat(fullFilePath, currFilePath);
+
+                realpath(fullFilePath, &fullFilePath);
 
                 printf("<loadFilePaths> Found: %s (full path: %s)\n", dentry->d_name, fullFilePath);
 
