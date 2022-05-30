@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const { argv } = require('process');
 
 function makeid(length) {
@@ -12,7 +13,13 @@ function makeid(length) {
     return result;
 }
 
+const outDirPath = path.join(__dirname, argv[2]);
+console.log("OutDir path: "+outDirPath);
+fs.mkdir(outDirPath, { recursive: true },(err, path) => err ? console.log(err, path) : console.log("Path OK"));
+
 for (i = 0; i < parseInt(argv[3]); ++i) {
-    fs.writeFileSync(argv[2]+"/sendme_"+i+".txt",makeid(100));
+    fs.writeFileSync(path.join(outDirPath, "sendme_" + i + ".txt"), makeid(100));
 }
 
+
+console.log("Files OK");
