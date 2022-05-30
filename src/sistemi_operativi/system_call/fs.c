@@ -87,7 +87,7 @@ int loadFilePaths(char *currdir, char **paths)
 
                 printf("<loadFilePaths> Found: %s (full path: %s)\n", dentry->d_name, fullFilePath);
 
-                paths[pathsCounter] = malloc(sizeof(char) * (sizeof(fullFilePath) + 1));
+                paths[pathsCounter] = malloc(strlen(fullFilePath) + 1);
                 strcpy(paths[pathsCounter], fullFilePath);
                 ++pathsCounter;
             }
