@@ -1,5 +1,0 @@
-make --dry-run --keep-going --print-directory
-make: Entering directory '/home/enrico/Projects/learn/so/elaborato-system-calls/src/sistemi_operativi/system_call'
-cc -Wall -std=gnu99    client_0.c   -o client_0
-make: Leaving directory '/home/enrico/Projects/learn/so/elaborato-system-calls/src/sistemi_operativi/system_call'
- 

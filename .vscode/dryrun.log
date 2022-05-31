@@ -1,6 +1,6 @@
 make --dry-run --always-make --keep-going --print-directory
-make: Entering directory '/home/enrico/Projects/learn/so/elaborato-system-calls'
-make: Leaving directory '/home/enrico/Projects/learn/so/elaborato-system-calls'
+make: Entering directory '/home/enrico/Projects/learn/so/systemcall_replit'
+make: Leaving directory '/home/enrico/Projects/learn/so/systemcall_replit'
  
 make: *** No targets specified and no makefile found.  Stop.
 
