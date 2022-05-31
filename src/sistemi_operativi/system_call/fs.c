@@ -27,13 +27,10 @@
 
 #include "fs.h"
 
-int loadFilePaths(char *currdir, char **paths)
+int loadFilePaths(char *currdir, char **paths,int *pathsCounter)
 {
     DIR *dirp = opendir(currdir);
     struct dirent *dentry;
-
-    // Current directory valid files counter
-    int pathsCounter = 0;
 
     // Load the CWD to build the full file path
     char CWD[2000] = "";
@@ -70,7 +67,7 @@ int loadFilePaths(char *currdir, char **paths)
         // https://man7.org/linux/man-pages/man7/inode.7.html
         if ((fileStat.st_mode & S_IFMT) == S_IFDIR)
         {
-            pathsCounter += loadFilePaths(currFilePath, paths);
+            loadFilePaths(currFilePath, paths, pathsCounter);
         }
         else if ((fileStat.st_mode & S_IFMT) == S_IFREG)
         {
@@ -85,16 +82,15 @@ int loadFilePaths(char *currdir, char **paths)
 
                 strcpy(&fullFilePath, realpath(fullFilePath, NULL));
 
-                printf("<loadFilePaths> Found: %s (full path: %s)\n", dentry->d_name, fullFilePath);
-
-                paths[pathsCounter] = malloc(strlen(fullFilePath) + 1);
-                strcpy(paths[pathsCounter], fullFilePath);
-                ++pathsCounter;
+                printf("<loadFilePaths> #%i Found: %s (full path: %s)\n", *pathsCounter,  dentry->d_name, fullFilePath);
+                paths[*pathsCounter] = malloc(strlen(fullFilePath) + 1);
+                strcpy(paths[*pathsCounter], fullFilePath);
+                *pathsCounter += 1;
             }
         }
     }
 
-    return pathsCounter;
+    return 0;
 }
 
 int buildMessages(char *filePath, struct ApplicationMsg *msgs)
@@ -103,8 +99,12 @@ int buildMessages(char *filePath, struct ApplicationMsg *msgs)
     char content[MAX_FILE_SIZE] = "";
     int lenght = 0;
 
+   printf("<buildMessages> loading PATH %s PID<%i> \n", filePath, getpid());
+
     if (fd < 0)
     {
+      printf("<buildMessages> open failed for PATH %s PID<%i> \n", filePath, getpid());
+
         return -1;
     }
 

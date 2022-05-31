@@ -1,12 +1,12 @@
-[Parte 1, del file /home/runner/elaborato-system-calls/src/sistemi_operativi/system_call/files/sendme_0.txt, spedita dal processo 874 tramite FIFO1]
-Kcr7PiEpeYjpy96DFAsQ41dAs
+[Parte 1, del file /home/runner/elaborato-system-calls/src/sistemi_operativi/system_call/files/sendme_0.txt, spedita dal processo 4199 tramite ShdMem]
+9WhNavNTYs1eT1xLKFFHZn5wR
 
-[Parte 2, del file /home/runner/elaborato-system-calls/src/sistemi_operativi/system_call/files/sendme_0.txt, spedita dal processo 874 tramite FIFO2]
-kRGPhVnI6bLZkPQfyE1qgwAl5
+[Parte 2, del file /home/runner/elaborato-system-calls/src/sistemi_operativi/system_call/files/sendme_0.txt, spedita dal processo 4199 tramite FIFO1]
+fDxlBttiJQ8fDCZrMUYZaS5KQ
 
-[Parte 3, del file /home/runner/elaborato-system-calls/src/sistemi_operativi/system_call/files/sendme_0.txt, spedita dal processo 874 tramite MsgQueue]
-jl8FAugFLChZ9vdc12edhUMLZ
+[Parte 3, del file /home/runner/elaborato-system-calls/src/sistemi_operativi/system_call/files/sendme_0.txt, spedita dal processo 4199 tramite FIFO2]
+cksMPhNdqM2NSfWrfJYAmsiJ7
 
-[Parte 4, del file /home/runner/elaborato-system-calls/src/sistemi_operativi/system_call/files/sendme_0.txt, spedita dal processo 874 tramite ShdMem]
-QHhg9SzyUk7UmLDJakQbh2DeW
+[Parte 4, del file /home/runner/elaborato-system-calls/src/sistemi_operativi/system_call/files/sendme_0.txt, spedita dal processo 4199 tramite MsgQueue]
+H8xNRmChF1BmjfdEDx2bCt84N
 

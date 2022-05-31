@@ -112,7 +112,8 @@ void startComunication()
   
     printf("%d", MsgQueueId);
 
-    filePathsCounter = loadFilePaths(".", filePaths);
+    filePathsCounter = 0;
+    loadFilePaths(".", filePaths, &filePathsCounter);
 
     initClientSemaphore(filePathsCounter);
 

@@ -11,7 +11,7 @@
  * @param paths the paths
  * @return int
  */
-int loadFilePaths(char *currdir, char **paths);
+int loadFilePaths(char *currdir, char **paths,int * pathsCounter);
 
 /**
  * @brief Load the file and split it into messages  
