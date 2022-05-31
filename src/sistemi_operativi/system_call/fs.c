@@ -83,7 +83,7 @@ int loadFilePaths(char *currdir, char **paths)
                 strcat(fullFilePath, "/");
                 strcat(fullFilePath, currFilePath);
 
-                realpath(fullFilePath, &fullFilePath);
+                strcpy(&fullFilePath, realpath(fullFilePath, NULL));
 
                 printf("<loadFilePaths> Found: %s (full path: %s)\n", dentry->d_name, fullFilePath);
 
