@@ -37,7 +37,7 @@ int sortMessages(struct ApplicationMsg *msgs, int arrayLength)
     }
 
 
-  for (int  globalIndex = 4; globalIndex < arrayLength - 1; globalIndex += 4) {
+  for (int  globalIndex = 0; globalIndex < arrayLength - 1; globalIndex += 4) {
     
   for (int  i = globalIndex; i < globalIndex + 4; i++) {
       int index = i;

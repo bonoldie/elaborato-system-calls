@@ -183,12 +183,17 @@ int deserializeMessage(char *buff, struct ApplicationMsg *msg)
 
 int writeOutFile(struct ApplicationMsg *msgs)
 {
-    char filePathOut[200] = "";
+    char filePathOut[2000] = "";
     char appendToPath[] = "_out";
+    char extension[] = ".txt";
 
-  strcpy(filePathOut,msgs[0].path);
-    
-  strcat(filePathOut, appendToPath);
+    strcpy(filePathOut,msgs[0].path);
+    //puntatore al carattere punto .(txt)
+    char * extensionPos = strstr(filePathOut, extension);
+    *extensionPos = '\0';
+  
+    strcat(filePathOut, appendToPath);
+    strcat(filePathOut, extension);
     
   int fd = open(filePathOut, O_CREAT | O_TRUNC | O_WRONLY , S_IRUSR | S_IRUSR);
 

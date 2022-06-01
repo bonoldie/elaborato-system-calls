@@ -40,9 +40,10 @@ void welcomeMessage();
 void blockAllSignals();
 void blockSomeSignals();
 
-short FIFO1SemVelue[1];
+short FIFO1SemValue[1];
 short FIFO2SemValue[1];
-short ShmSemValues[50];
+short MsgQueueSemValue[1];
+short ShmSemValue[50];
 
 char CWDARG[250];
 
@@ -58,7 +59,9 @@ void sigHandler(int sig)
 
     if (sig == SIGINT)
     {
-        startComunication();
+      blockAllSignals();
+      startComunication();
+      blockSomeSignals();
     }
     else if (sig == SIGUSR1)
     {
@@ -68,8 +71,6 @@ void sigHandler(int sig)
 
 int main(int argc, char *argv[])
 {
-    blockSomeSignals();
-
     // imposto directory corrente
     if (argc != 2)
     {
@@ -102,7 +103,7 @@ int main(int argc, char *argv[])
 
 void startComunication()
 {
-    blockAllSignals();
+   
     initSemaphores();
 
     // imposto CWD
@@ -124,6 +125,8 @@ void startComunication()
     int FIFO2 = getFIFO(FIFO2PATH, O_RDWR);
 
     MsgQueueId = getMsgQueue(IPC_CREAT | S_IRUSR | S_IWUSR);
+
+  size_t mSize = sizeof(struct SerializedMessage) - sizeof(long);
   
     printf("<Client> Waiting for serverOk\n");
 
@@ -142,6 +145,8 @@ void startComunication()
     printf("<Client> Received serverOk\n");
 
     fflush(stdout);
+
+    int filemandati[4] = {0,0,0,0};
 
     // Valore sem client N dei path
     //printSemValues(CLIENTSemId);
@@ -167,7 +172,7 @@ void startComunication()
 
             for (int j = 0; j < 4; ++j)
             {
-                serializeMessage(&(messages[j]), &(serialized[j]));
+            serializeMessage(&(messages[j]), &(serialized[j]));
             //    printf("%s \n", &(serialized[j]));
             }
             //printSemValues(CLIENTSemId);
@@ -177,21 +182,33 @@ void startComunication()
             semOp(CLIENTSemId, 1, -1);
             
             // printf("PIDchild: %d, PIDparent: %d\n", getpid(), getppid());
-     
           
-            // LOCK FIFO 1
-            semOp(FIFO1SemId, 0, -2);
-            //printf("\nWriting %i characters to FIFO1.\n",strlen(serialized));
-            write(FIFO1, serialized, (strlen(serialized)) + 1);
-            semOp(FIFO1SemId, 0, 1);
-          
-            // LOCK FIFO 2
-            semOp(FIFO2SemId, 0, -2);
-            //printf("\nWriting %i characters to FIFO2.\n",strlen(&(serialized[1])));
-            write(FIFO2, &(serialized[1]), strlen(&(serialized[1])) + 1);
-            semOp(FIFO2SemId, 0, 1);
 
-          
+          while (filemandati[0] == 0 ||  filemandati[1] == 0 || filemandati[2] == 0 || filemandati[3] == 0){
+
+            getSemValues(FIFO1SemId, FIFO1SemValue);
+            
+            // LOCK FIFO 1 
+            if(FIFO1SemValue[0] == 2 && filemandati[0] == 0){
+              semOp(FIFO1SemId, 0, -2);
+            //printf("\nWriting %i characters to FIFO1.\n",strlen(serialized));
+              write(FIFO1, serialized, (strlen(serialized)) + 1);
+              semOp(FIFO1SemId, 0, 1);
+              filemandati[0] = 1;
+              }
+            
+          getSemValues(FIFO2SemId, FIFO2SemValue);
+            // LOCK FIFO 2
+            if(FIFO2SemValue[0] == 2 && filemandati[1] == 0){
+              semOp(FIFO2SemId, 0, -2);
+            //printf("\nWriting %i characters to FIFO2.\n",strlen(&(serialized[1])));
+              write(FIFO2, &(serialized[1]), strlen(&(serialized[1])) + 1);
+              semOp(FIFO2SemId, 0, 1);
+              filemandati[1] = 1;
+              }
+
+           getSemValues(MsgQueueSemId, MsgQueueSemValue);
+          if(MsgQueueSemValue[0] != 0 && filemandati[2] == 0){
             // LOCK MSGQUEUE
             semOp(MsgQueueSemId, 0, -1);
             
@@ -199,27 +216,30 @@ void startComunication()
               .mtype = 1,
             };
           
-          memcpy(&(msgqueueMsg.mtext), &(serialized[2]), strlen(&(serialized[2])) + 1);       
-
-          
-
+          memcpy(&(msgqueueMsg.mtext), &(serialized[2]), strlen(&(serialized[2])) + 1);     
            // strcpy(&(msgqueueMsg.mtext),&(serialized[2]));
 
-          size_t mSize = sizeof(struct SerializedMessage) - sizeof(long);
           
-
+        
           if(msgsnd(MsgQueueId,&(msgqueueMsg),mSize,0) == -1){
               ErrExit("<Client_N> msgqueue error");
-            }         
+            }
+            filemandati[2] = 1;
+            }
+
             
+            getSemValues(ShmSemId, ShmSemValue);
+            if(ShmSemValue[i % 50] == 2 && filemandati[3] == 0){
             // LOCK SHM
-            semOp(ShmSemId, i % 50, -2);
-  
+            semOp( ShmSemId, i % 50, -2);
             // Scrive il messaggio dalla Shared Memory
             // memcpy(&(shmDisposition->messages[i % 50]),&(serialized[3]),strlen(&(serialized[3])) + 1 );
             strcpy(&(shmDisposition->messages[i % 50]), &(serialized[3]));  
 
-          semOp(ShmSemId, i % 50, 1);
+            semOp(ShmSemId, i % 50, 1);
+            filemandati[3] = 1; 
+            }
+           }
 
          exit(code);
 
@@ -232,7 +252,7 @@ void startComunication()
     do {
       sleep(0.1);
       getSemValues(CLIENTSemId, &values);  
-    }while(values[0] > 0);
+    } while(values[0] > 0);
 
     semOp(CLIENTSemId,1,filePathsCounter);
   
@@ -240,16 +260,22 @@ void startComunication()
     // get termination status of each created subprocess.
     while ((pid = wait(&status)) != -1)
         printf("Child %d Finished\n", pid);
-
     fflush(stdout);
 
+    // Leggi il messaggio dalla MsgQueue
+     struct SerializedMessage serializedMsg ;
+      msgrcv(MsgQueueId, &serializedMsg, mSize, 1);
+  
+    // if ((msgRec = msgrcv(MsgQueueId, &serializedMsg, mSize, 1)) == -1){}
+   
     // Close the FIFO
-    if (close(FIFO1) != 0)
-        ErrExit("close failed");
+    // if (close(FIFO1) != 0 || close(FIFO2) != 0)
+    // ErrExit("close failed");
 }
 
 void endComunication()
 {
+  
     printf("<client> received SIGUSR1. Client ends\n");
     exit(0);
 }

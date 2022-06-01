@@ -58,12 +58,13 @@ int main(int argc, char *argv[])
 
   int FIFO1 = getFIFO(FIFO1PATH,O_RDWR);
   int FIFO2 = getFIFO(FIFO2PATH,O_RDWR);
-  
  
   if (FIFO1 == -1 || FIFO2 == -1)
     ErrExit("fifo failed");
 
-
+  while(1) {
+    messagesReceived = 0;
+  
   // reading bytes from fifo
   int bR = read(FIFO1, &filesCounter, sizeof(int));
   if (bR == -1)
@@ -88,7 +89,8 @@ int main(int argc, char *argv[])
    
     // Controllo FIFO1
     getSemValues(FIFO1SemId, FIFO1SemValues);
-    //printSemValues(FIFO1SemId);// sem a 1
+    printSemValues(FIFO1SemId);// sem a 1
+   fflush(stdout);
    
     if (FIFO1SemValues[0] == 1){
       
@@ -113,7 +115,8 @@ int main(int argc, char *argv[])
     }
 
     getSemValues(FIFO2SemId, FIFO2SemValues);
-    //printSemValues(FIFO2SemId);
+    printSemValues(FIFO2SemId);
+      fflush(stdout);
 
    // Leggi il messaggio dalla FIFO2
     if (FIFO2SemValues[0] == 1){
@@ -149,8 +152,7 @@ int main(int argc, char *argv[])
     }
    
     if (msgRec > 0){
-      //messageBuff occhio a sto bastardo
-      printf("\nSono nella msq\n");
+      //printf("\nSono nella msq\n");
       deserializeMessage(&(serializedMsg.mtext), &(messages[messagesReceived]));
       messages[messagesReceived].medium = MEDIA_MSGQUEUE_ID;
 
@@ -162,6 +164,8 @@ int main(int argc, char *argv[])
 
 
     getSemValues(ShmSemId, ShmSemValues);
+    printSemValues(ShmSemId);
+      fflush(stdout);
    
     for (int sem = 0; sem < 50; sem++)
     {
@@ -169,7 +173,8 @@ int main(int argc, char *argv[])
       if (ShmSemValues[sem] == 1)
       {
         // Leggi il messaggio dalla Shared Memory
-        printf("Sono nella shmem\n");
+        printf("\nSono nella shmem\n");
+        printf("\nChe cazzo ci fai qui?.Cit enri\n");
         //memcpy(messageBuff, &(shmDisposition->messages[sem]), MESSAGE_SIZE);
         strcpy(messageBuff,&(shmDisposition->messages[sem]));
         printf("SHARED: %s\n",messageBuff);
@@ -194,11 +199,26 @@ int main(int argc, char *argv[])
 
   printf("HO SCRITTO");
   fflush(stdout);
-  // Pulizia e exit
-  printf("<Server> removing FIFO...\n");
-  // Close the FIFO
-  if (close(FIFO1) != 0 || close(FIFO2) != 0)
-    ErrExit("close failed");
 
+
+    struct SerializedMessage msgqueueMsg = { 
+      .mtype = 1,
+      .mtext = "FINITO",
+    };
+    
+    size_t mSize = sizeof(struct SerializedMessage) - sizeof(long);
+        
+    if(msgsnd(MsgQueueId,&(msgqueueMsg),mSize,0) == -1){
+      ErrExit("<Client_N> msgqueue error");
+    }
+
+    
+  // Pulizia e exit
+  // printf("<Server> removing FIFO...\n");
+  // Close the FIFO
+  //if (close(FIFO1) != 0 || close(FIFO2) != 0)
+  //  ErrExit("close failed");
+
+    }
   return 0;
 }
