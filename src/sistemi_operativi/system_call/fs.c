@@ -111,16 +111,21 @@ int buildMessages(char *filePath, struct ApplicationMsg *msgs)
     while (read(fd, &(content[lenght]), 1) > 0)
         lenght++;
 
+
+    int startIndex = 0;
+  
     for (int i = 0; i < 4; i++)
     {
 
         char payload[MESSAGE_PAYLOAD_SIZE] = "";
 
-        strncat(payload, &(content[(lenght / 4) * i]), (lenght / 4));
+        strncat(payload, &(content[startIndex]), (lenght / 4));
+        startIndex += (lenght / 4);
 
-        if (i == 3)
+        if (lenght % 4 >= i + 1)
         {
-            strncat(payload, &(content[(lenght / 4) * i + 1]), (lenght % 4));
+          strncat(payload, &(content[startIndex]), 1);
+          startIndex += 1;
         }
 
         strcpy(&(msgs[i].payload), payload);
