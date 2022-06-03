@@ -89,8 +89,8 @@ int main(int argc, char *argv[])
    
     // Controllo FIFO1
     getSemValues(FIFO1SemId, FIFO1SemValues);
-    printSemValues(FIFO1SemId);// sem a 1
-   fflush(stdout);
+    // printSemValues(FIFO1SemId);// sem a 1
+    // fflush(stdout);
    
     if (FIFO1SemValues[0] == 1){
       
@@ -115,8 +115,8 @@ int main(int argc, char *argv[])
     }
 
     getSemValues(FIFO2SemId, FIFO2SemValues);
-    printSemValues(FIFO2SemId);
-      fflush(stdout);
+    // printSemValues(FIFO2SemId);
+    // fflush(stdout);
 
    // Leggi il messaggio dalla FIFO2
     if (FIFO2SemValues[0] == 1){
@@ -164,8 +164,8 @@ int main(int argc, char *argv[])
 
 
     getSemValues(ShmSemId, ShmSemValues);
-    printSemValues(ShmSemId);
-      fflush(stdout);
+    //printSemValues(ShmSemId);
+    //  fflush(stdout);
    
     for (int sem = 0; sem < 50; sem++)
     {
@@ -173,8 +173,7 @@ int main(int argc, char *argv[])
       if (ShmSemValues[sem] == 1)
       {
         // Leggi il messaggio dalla Shared Memory
-        printf("\nSono nella shmem\n");
-        printf("\nChe cazzo ci fai qui?.Cit enri\n");
+        //printf("\nSono nella shmem\n");
         //memcpy(messageBuff, &(shmDisposition->messages[sem]), MESSAGE_SIZE);
         strcpy(messageBuff,&(shmDisposition->messages[sem]));
         printf("SHARED: %s\n",messageBuff);
