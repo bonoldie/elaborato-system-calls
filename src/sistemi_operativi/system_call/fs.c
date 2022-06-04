@@ -135,7 +135,11 @@ int buildMessages(char *filePath, struct ApplicationMsg *msgs)
         printf("<buildMessages> payload<%s> PID<%i> path<%s> \n", msgs[i].payload, msgs[i].PID, msgs[i].path);
     }
 
-    close(fd);
+    if (close(fd) < 0)
+    {
+        ErrExit("<buildMessages> Error while closing file ");
+    }
+
     return lenght;
 }
 
@@ -204,6 +208,8 @@ int writeOutFile(struct ApplicationMsg *msgs)
 
     if (fd < 0)
     {
+        printf("\n !!!!!!!!!!!!!! \n Error here : %s \n !!!!!!!!!!!!!! \n", filePathOut);
+        fflush(stdout);
         ErrExit("<writeMessage> Error while opening file ");
     }
 

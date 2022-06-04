@@ -201,16 +201,18 @@ int main(int argc, char *argv[])
 
 
     struct SerializedMessage msgqueueMsg = { 
-      .mtype = 1,
+      .mtype = 2,
       .mtext = "FINITO",
     };
     
     size_t mSize = sizeof(struct SerializedMessage) - sizeof(long);
-        
-    if(msgsnd(MsgQueueId,&(msgqueueMsg),mSize,0) == -1){
+    int msgCode = 0;
+
+    if((msgCode = msgsnd(MsgQueueId,&(msgqueueMsg),mSize,0)) == -1){
       ErrExit("<Client_N> msgqueue error");
     }
 
+  printf("\n Sending msgqueue message to client(%i)\n", msgCode);
     
   // Pulizia e exit
   // printf("<Server> removing FIFO...\n");

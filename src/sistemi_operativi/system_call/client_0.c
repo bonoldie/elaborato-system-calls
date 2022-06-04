@@ -265,7 +265,7 @@ void startComunication()
     // Leggi il messaggio dalla MsgQueue
      struct SerializedMessage serializedMsg ;
     
-    if(msgrcv(MsgQueueId, &serializedMsg, mSize, -1)) {
+    if(msgrcv(MsgQueueId, &serializedMsg, mSize, 0, -2)) {
       printf("Ricevuto %s\n", serializedMsg.mtext);  
     }
   
