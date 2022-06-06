@@ -1,6 +1,6 @@
 /// @file shared_memory.h
 /// @brief Contiene la definizioni di variabili e funzioni
-///         specifiche per la gestione della MEMORIA CONDIVISA.
+/// specifiche per la gestione della MEMORIA CONDIVISA.
 
 #ifndef _SHARED_MEMORY_HH
 #define _SHARED_MEMORY_HH
@@ -33,7 +33,6 @@ void free_shared_memory(void *ptr_sh);
 // The remove_shared_memory removes a shared memory segment
 // If it does not succeed, it terminates the calling process
 void remove_shared_memory(int shmid);
-
 
 struct MemoryDisposition * init_shared_memory();
 

@@ -1,6 +1,6 @@
 /// @file semaphore.c
 /// @brief Contiene l'implementazione delle funzioni
-///         specifiche per la gestione dei SEMAFORI.
+///specifiche per la gestione dei SEMAFORI.
 
 #include <stdio.h>
 #include <sys/sem.h>

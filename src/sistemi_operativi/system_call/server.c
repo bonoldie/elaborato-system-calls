@@ -5,8 +5,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <signal.h>
-#include <sys/types.h>
-#include <unistd.h>
 #include <errno.h>
 #include <string.h>
 #include <pwd.h>
@@ -44,10 +42,10 @@ int main(int argc, char *argv[])
 
   setupSemaphores();
 
-  printSemValues(ShmSemId);
-  printSemValues(FIFO1SemId);
-  printSemValues(FIFO2SemId);
-  printSemValues(MsgQueueSemId);
+  //printSemValues(ShmSemId);
+  //printSemValues(FIFO1SemId);
+  //printSemValues(FIFO2SemId);
+  //printSemValues(MsgQueueSemId);
 
   shmDisposition = init_shared_memory();
   shmDisposition->serverOk = 0;
@@ -95,7 +93,7 @@ int main(int argc, char *argv[])
     if (FIFO1SemValues[0] == 1){
       
       // Leggi il messaggio dalla FIFO1
-      printf("\nsono entrato in fifo1\n");
+      //printf("\nsono entrato in fifo1\n");
       
       while(read(FIFO1, &(messageBuff[msgLength]), sizeof(char)) > 0){
         printf("%c", messageBuff[msgLength]);
@@ -121,7 +119,7 @@ int main(int argc, char *argv[])
    // Leggi il messaggio dalla FIFO2
     if (FIFO2SemValues[0] == 1){
 
-      printf("\nsono entrato in fifo2\n");
+      //printf("\nsono entrato in fifo2\n");
     
        while(read(FIFO2, &(messageBuff[msgLength]), sizeof(char)) > 0){
         printf("%c", messageBuff[msgLength]);
@@ -139,9 +137,7 @@ int main(int argc, char *argv[])
       messagesReceived++;
       msgLength = 0;
     }
-    
-   
-    
+  
    // Leggi il messaggio dalla MsgQueue
    struct SerializedMessage serializedMsg ;
    
@@ -160,13 +156,9 @@ int main(int argc, char *argv[])
       messagesReceived++;
       msgLength = 0;
     }
-   
-
-
+  
     getSemValues(ShmSemId, ShmSemValues);
-    //printSemValues(ShmSemId);
-    //  fflush(stdout);
-   
+ 
     for (int sem = 0; sem < 50; sem++)
     {
       
@@ -196,9 +188,8 @@ int main(int argc, char *argv[])
 
   free(messages);
 
-  printf("HO SCRITTO");
+  //printf("HO SCRITTO");
   fflush(stdout);
-
 
     struct SerializedMessage msgqueueMsg = { 
       .mtype = 2,
@@ -213,12 +204,6 @@ int main(int argc, char *argv[])
     }
 
   printf("\n Sending msgqueue message to client(%i)\n", msgCode);
-    
-  // Pulizia e exit
-  // printf("<Server> removing FIFO...\n");
-  // Close the FIFO
-  //if (close(FIFO1) != 0 || close(FIFO2) != 0)
-  //  ErrExit("close failed");
 
     }
   return 0;

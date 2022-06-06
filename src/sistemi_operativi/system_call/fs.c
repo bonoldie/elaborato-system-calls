@@ -162,7 +162,7 @@ int serializeMessage(struct ApplicationMsg *msg, char *buff)
 
 int deserializeMessage(char *buff, struct ApplicationMsg *msg)
 {
-    //printf("CCCC");
+    
   
     char PID[10] = "";
 
